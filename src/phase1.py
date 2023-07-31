@@ -42,3 +42,17 @@ print("delta = ", delta)
 print("epsilon = ", eps)
 print("Original lengths = ", igl.edge_lengths(V, E)[:7])
 print("New lengths = ", newL[:7])
+
+## Testing from spot with degeneracies
+import os
+root_folder = os.getcwd()
+
+delta = 1e-4
+V2, F2 = igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "spot-degenerate.obj"))
+E2, newL2, eps2 = IntrinsicMollification(V2, F2, delta)
+
+print("delta = ", delta)
+print("epsilon = ", eps2)
+print("Original lengths = ", igl.edge_lengths(V2, E2)[:7])
+print("New lengths = ", newL2[:7])
