@@ -1,3 +1,4 @@
+![intrinsic Mollification of triangle](https://github.com/SGI-2023/intrinsic_mollification/blob/main/photo_2023-07-31_14-25-12.jpg)
 # intrinsic_mollification
 This project delves into an ingenious approach to ensure favorable triangle shapes in meshes without altering connectivity or employing complex data structures. By incorporating intrinsic mollification, the research showcases how this technique enhances the resilience of mesh processing algorithms, optimizing triangle quality.
 
