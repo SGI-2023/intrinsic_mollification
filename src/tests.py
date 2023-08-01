@@ -4,6 +4,7 @@ import numpy as np
 import igl
 from Mollification import *
 from cotanLaplace import *
+from massmatrix import *
 
 
 
@@ -60,3 +61,18 @@ print("Laplacian_intrinsic Norm",np.linalg.norm(Laplacian_intrinsic))
 
 print("Laplacian_igl Norm",np.linalg.norm(Laplacian_igl))
 print("Norm of Difference = ",np.linalg.norm(Laplacian_intrinsic - Laplacian_igl))
+
+
+###############################       MASSMATRIX       ###############################
+
+## Test massmatrix function.
+
+L = igl.edge_lengths(V, F)
+mm_igl = igl.massmatrix_intrinsic(L, F, igl.MASSMATRIX_TYPE_BARYCENTRIC)
+mm_intrinsic = massmatrix(L, F)
+
+print("IGL massmatrix:\n", mm_igl.todense())
+print("\nmassmatrix computed:\n", mm_intrinsic.todense())
+print("IGL massmatrix norm: ", sp.sparse.linalg.norm(mm_igl))
+print("mass matrix norm: ", sp.sparse.linalg.norm(mm_intrinsic))
+print("Norm of difference: ", sp.sparse.linalg.norm(mm_igl - mm_intrinsic))
