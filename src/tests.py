@@ -18,22 +18,22 @@ V = np.array(annulus.vertices)
 F = np.array(annulus.faces)
 
 delta = 0.2
-E, newL, eps = IntrinsicMollification(V, F, delta) 
+E, eps, newL = IntrinsicMollification(V, F, delta) 
 
 print("delta = ", delta)
 print("epsilon = ", eps)
-print("Original lengths = ", igl.edge_lengths(V, E)[:7])
+print("Original lengths = ", igl.edge_lengths(V, F)[:7])
 print("New lengths = ", newL[:7])
 
 ## Testing from spot with degeneracies
 delta = 1e-4
 V2, F2 = igl.read_triangle_mesh(os.path.join(
             root_folder, "../data", "spot-degenerate.obj"))
-E2, newL2, eps2 = IntrinsicMollification(V2, F2, delta)
+E2, eps2, newL2 = IntrinsicMollification(V2, F2, delta)
 
 print("delta = ", delta)
 print("epsilon = ", eps2)
-print("Original lengths = ", igl.edge_lengths(V2, E2)[:7])
+print("Original lengths = ", igl.edge_lengths(V2, F2)[:7])
 print("New lengths = ", newL2[:7])
 
 
@@ -44,8 +44,8 @@ print("New lengths = ", newL2[:7])
             root_folder, "../data", "cow_nonmanifold.obj"))
 
 delta = 0.00000000
-E, newL, eps = IntrinsicMollification(V, F, delta)
-Laplacian_intrinsic = cotanLaplace(F, E, newL, V.shape[0])
+E, eps, newL = IntrinsicMollification(V, F, delta)
+Laplacian_intrinsic = cotanLaplace(F, newL, V.shape[0])
 
 # compute cotan Laplacian using igl library to compare with our intrinsic implementation
 Laplacian_igl = igl.cotmatrix(V, F)
