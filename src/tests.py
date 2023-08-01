@@ -40,14 +40,3 @@ print("New lengths = ", newL2[:7])
 ###############################         TESTS           ###############################
 
 ####### Test cotanLaplace function
-annulus = trimesh.creation.annulus(r_min = 1, r_max = 3, height = 5)
-V = np.array(annulus.vertices)
-F = np.array(annulus.faces)
-
-delta = 0.2
-E, newL, eps = cotanLaplace(V, F, delta)
-
-print("delta = ", delta)
-print("epsilon = ", eps)
-print("Original lengths = ", igl.edge_lengths(V, E)[:7])
-print("New lengths = ", newL[:7])
