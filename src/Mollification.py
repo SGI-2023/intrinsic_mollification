@@ -1,7 +1,7 @@
 '''
     Phase I:
-    Implement the intrinsic mollification scheme by 
-    (i) reading off the original edge lengths and 
+    Implement the intrinsic mollification scheme by
+    (i) reading off the original edge lengths and
     (ii) implementing the formula defined by Sharp & Crane to get new lengths that describe higher-quality triangles.
 
 '''
@@ -29,38 +29,8 @@ def IntrinsicMollification(V, F, delta = 10e-4):
     for T in L:
         eps = max(   [0, eps, delta + T[0] - T[1] - T[2], delta - T[0] + T[1] - T[2], delta - T[0] - T[1] + T[2] ]  )
 
-    newL = eps*np.ones(len(E)) 
+    newL = eps*np.ones(len(E))
     newL = newL + igl.edge_lengths(V, E)
 
     return E, newL, eps
 
-###############################         TESTS           ###############################           
-
-####### Test above function
-import trimesh
-
-annulus = trimesh.creation.annulus(r_min = 1, r_max = 3, height = 5)
-V = np.array(annulus.vertices)
-F = np.array(annulus.faces)
-
-delta = 0.2
-E, newL, eps = IntrinsicMollification(V, F, delta) 
-
-print("delta = ", delta)
-print("epsilon = ", eps)
-print("Original lengths = ", igl.edge_lengths(V, E)[:7])
-print("New lengths = ", newL[:7])
-
-## Testing from spot with degeneracies
-import os
-root_folder = os.getcwd()
-
-delta = 1e-4
-V2, F2 = igl.read_triangle_mesh(os.path.join(
-            root_folder, "../data", "spot-degenerate.obj"))
-E2, newL2, eps2 = IntrinsicMollification(V2, F2, delta)
-
-print("delta = ", delta)
-print("epsilon = ", eps2)
-print("Original lengths = ", igl.edge_lengths(V2, E2)[:7])
-print("New lengths = ", newL2[:7])
