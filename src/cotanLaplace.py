@@ -6,7 +6,6 @@
 
 import numpy as np
 import igl
-import Mollification
 
 '''
     Parameters:

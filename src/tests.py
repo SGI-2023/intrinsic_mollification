@@ -28,7 +28,7 @@ print("New lengths = ", newL[:7])
 ## Testing from spot with degeneracies
 delta = 1e-4
 V2, F2 = igl.read_triangle_mesh(os.path.join(
-            root_folder, "data", "spot-degenerate.obj"))
+            root_folder, "../data", "spot-degenerate.obj"))
 E2, newL2, eps2 = IntrinsicMollification(V2, F2, delta)
 
 print("delta = ", delta)
@@ -40,3 +40,22 @@ print("New lengths = ", newL2[:7])
 ###############################         TESTS           ###############################
 
 ####### Test cotanLaplace function
+[V,F]= igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "cow_nonmanifold.obj"))
+
+delta = 0.00000000
+E, newL, eps = IntrinsicMollification(V, F, delta)
+Laplacian_intrinsic = cotanLaplace(F, E, newL, V.shape[0])
+
+# compute cotan Laplacian using igl library to compare with our intrinsic implementation
+Laplacian_igl = igl.cotmatrix(V, F)
+# dense matrix <- sparse matrix
+Laplacian_igl = np.array(Laplacian_igl.todense())
+
+print("Laplacian_intrinsic Dimensions: ",Laplacian_intrinsic.shape)
+print("Laplacian_igl Dimensions: ",Laplacian_igl.shape)
+
+print("Laplacian_intrinsic Norm",np.linalg.norm(Laplacian_intrinsic))
+
+print("Laplacian_igl Norm",np.linalg.norm(Laplacian_igl))
+print("Norm of Difference = ",np.linalg.norm(Laplacian_intrinsic - Laplacian_igl))
