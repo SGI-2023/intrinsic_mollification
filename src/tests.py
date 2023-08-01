@@ -51,6 +51,7 @@ Laplacian_intrinsic = cotanLaplace(F, E, newL, V.shape[0])
 Laplacian_igl = igl.cotmatrix(V, F)
 # dense matrix <- sparse matrix
 Laplacian_igl = np.array(Laplacian_igl.todense())
+Laplacian_intrinsic = np.array(Laplacian_intrinsic.todense())
 
 print("Laplacian_intrinsic Dimensions: ",Laplacian_intrinsic.shape)
 print("Laplacian_igl Dimensions: ",Laplacian_igl.shape)

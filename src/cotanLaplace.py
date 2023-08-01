@@ -3,7 +3,7 @@
     Build the cotan-Laplace matrix from the intrinsic lengths.
     (A description of how to do this can be found in the same paper by Sharp & Crane).
 '''
-
+import scipy as sp
 import numpy as np
 import igl
 
@@ -17,7 +17,7 @@ import igl
 '''
 def cotanLaplace(F, E, L, Vsize):
 
-    LaplacianMollified = np.zeros((Vsize, Vsize))
+    LaplacianMollified = sp.sparse.lil_matrix((Vsize, Vsize))
 
     # sort edge entries so that E[:,0] < E[:,1]
     E = np.sort(E, axis = 1)
