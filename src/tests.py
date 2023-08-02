@@ -10,7 +10,7 @@ from massmatrix import *
 
 root_folder = os.getcwd()
 
-###############################         TESTS           ###############################           
+###############################         TESTS           ###############################
 
 ####### Test IntrinsicMollification function
 print("Test IntrinsicMollification function with annulus mesh")
