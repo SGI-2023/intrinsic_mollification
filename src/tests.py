@@ -13,6 +13,7 @@ root_folder = os.getcwd()
 ###############################         TESTS           ###############################           
 
 ####### Test IntrinsicMollification function
+print("Test IntrinsicMollification function with annulus mesh")
 
 annulus = trimesh.creation.annulus(r_min = 1, r_max = 3, height = 5)
 V = np.array(annulus.vertices)
@@ -27,6 +28,9 @@ print("Original lengths = ", igl.edge_lengths(V, F)[:7])
 print("New lengths = ", newL[:7])
 
 ## Testing from spot with degeneracies
+print("______________________________________________________________")
+print("Test IntrinsicMollification function with spot-degenerate mesh")
+
 delta = 1e-4
 V2, F2 = igl.read_triangle_mesh(os.path.join(
             root_folder, "../data", "spot-degenerate.obj"))
@@ -41,12 +45,15 @@ print("New lengths = ", newL2[:7])
 ###############################         TESTS           ###############################
 
 ####### Test cotanLaplace function
+print("______________________________________________________________")
+print("Testing cotanLaplace function")
+
 [V,F]= igl.read_triangle_mesh(os.path.join(
             root_folder, "../data", "cow_nonmanifold.obj"))
 
 delta = 0.00000000
 E, eps, newL = IntrinsicMollification(V, F, delta)
-Laplacian_intrinsic = cotanLaplace(F, newL, V.shape[0])
+Laplacian_intrinsic = cotanLaplace(F, newL)
 
 # compute cotan Laplacian using igl library to compare with our intrinsic implementation
 Laplacian_igl = igl.cotmatrix(V, F)
@@ -62,10 +69,11 @@ print("Laplacian_intrinsic Norm",np.linalg.norm(Laplacian_intrinsic))
 print("Laplacian_igl Norm",np.linalg.norm(Laplacian_igl))
 print("Norm of Difference = ",np.linalg.norm(Laplacian_intrinsic - Laplacian_igl))
 
-
 ###############################       MASSMATRIX       ###############################
 
 ## Test massmatrix function.
+print("______________________________________________________________")
+print("Testing massmatrix function")
 
 L = igl.edge_lengths(V, F)
 mm_igl = igl.massmatrix_intrinsic(L, F, igl.MASSMATRIX_TYPE_BARYCENTRIC)
