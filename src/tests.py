@@ -71,16 +71,31 @@ print("Norm of Difference = ",np.linalg.norm(Laplacian_intrinsic - Laplacian_igl
 
 ###############################       MASSMATRIX       ###############################
 
-## Test massmatrix function.
+## Test massmatrix function for barycentric type.
 print("______________________________________________________________")
-print("Testing massmatrix function")
+print("Testing massmatrix function with barycentric option")
 
 L = igl.edge_lengths(V, F)
 mm_igl = igl.massmatrix_intrinsic(L, F, igl.MASSMATRIX_TYPE_BARYCENTRIC)
-mm_intrinsic = massmatrix(L, F)
+mm_intrinsic = massmatrix(L, F, MASSMATRIX_TYPE.BARYCENTRIC)
 
 print("IGL massmatrix:\n", mm_igl.todense())
 print("\nmassmatrix computed:\n", mm_intrinsic.todense())
 print("IGL massmatrix norm: ", sp.sparse.linalg.norm(mm_igl))
 print("mass matrix norm: ", sp.sparse.linalg.norm(mm_intrinsic))
 print("Norm of difference: ", sp.sparse.linalg.norm(mm_igl - mm_intrinsic))
+
+
+## Test massmatrix function for circumcentric type.
+print("______________________________________________________________")
+print("Testing massmatrix function with circumcentric option")
+
+mc_igl = igl.massmatrix_intrinsic(L, F, igl.MASSMATRIX_TYPE_VORONOI)
+mc_intrinsic = massmatrix(L, F, MASSMATRIX_TYPE.CIRCUMCENTRIC)
+
+print("IGL massmatrix: \n", mc_igl.todense())
+print("\nmassmatrix computed:\n", mc_intrinsic.todense())
+print("IGL massmatrix norm: ", sp.sparse.linalg.norm(mc_igl))
+print("massmatrix norm: ", sp.sparse.linalg.norm(mc_intrinsic))
+print("Norm of difference: ", sp.sparse.linalg.norm(mc_igl - mc_intrinsic))
+
