@@ -92,10 +92,12 @@ print("Testing massmatrix function with circumcentric option")
 
 mc_igl = igl.massmatrix_intrinsic(L, F, igl.MASSMATRIX_TYPE_VORONOI)
 mc_intrinsic = massmatrix(L, F, MASSMATRIX_TYPE.CIRCUMCENTRIC)
+mc_igl_like = massmatrix(L, F, MASSMATRIX_TYPE.CIRCUMCENTRIC_IGL_LIKE)
 
 print("IGL massmatrix: \n", mc_igl.todense())
 print("\nmassmatrix computed:\n", mc_intrinsic.todense())
 print("IGL massmatrix norm: ", sp.sparse.linalg.norm(mc_igl))
 print("massmatrix norm: ", sp.sparse.linalg.norm(mc_intrinsic))
-print("Norm of difference: ", sp.sparse.linalg.norm(mc_igl - mc_intrinsic))
-
+print("Norm of difference IGL - Computed: ", sp.sparse.linalg.norm(mc_igl - mc_intrinsic))
+print("Norm of difference IGL - Computed_igl_like: ", sp.sparse.linalg.norm(mc_igl - mc_igl_like))
+print("Norm of difference Computed - Computed_igl_like: ", sp.sparse.linalg.norm(mc_intrinsic - mc_igl_like))

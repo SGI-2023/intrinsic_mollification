@@ -7,6 +7,7 @@ from enum import Enum
 class MASSMATRIX_TYPE(Enum):
     BARYCENTRIC=1
     CIRCUMCENTRIC=2
+    CIRCUMCENTRIC_IGL_LIKE=3
 
 '''
 Python bindings for libigl does not include intrinsic doublearea. 
@@ -56,6 +57,8 @@ def massmatrix(uL, F, option=MASSMATRIX_TYPE.BARYCENTRIC):
                 area[fr[i]] += barycentric_area_per_corner(lengths)
             elif (option == MASSMATRIX_TYPE.CIRCUMCENTRIC):
                 area[fr[i]] += circumcentric_area_per_corner(lengths, i)
+            elif (option == MASSMATRIX_TYPE.CIRCUMCENTRIC_IGL_LIKE):
+                area[fr[i]] += circumcentric_area_per_corner_igl_like(lengths, i)
 
     return sp.sparse.spdiags(area, 0, area.size, area.size)
 
@@ -73,6 +76,8 @@ def circumcentric_area_per_corner(l, i):
     adj2 = (i+2)%3
     opp = i
 
+    to_return = 0
+
     # Observe that this is not whole angle, we just need the sign to check for 
     #   obtuse triangle.
     # gamma is angle at corner i.
@@ -80,7 +85,14 @@ def circumcentric_area_per_corner(l, i):
     cot_alpha = l[adj2]**2 + l[opp]**2 - l[adj1]**2
     cot_beta = l[adj1]**2 + l[opp]**2 - l[adj2]**2
 
-    to_return = 0
+    cos_gamma = l[opp] * cot_gamma
+    cos_alpha = l[adj1] * cot_alpha
+    cos_beta = l[adj2] * cot_beta
+    sm = np.sum([cos_gamma, cos_alpha, cos_beta])
+
+    cos_gamma = cos_gamma/sm
+    cos_alpha = cos_alpha/sm
+    cos_beta = cos_beta/sm
 
     zero = 1e-12
     # If triangle not obtuse, it is Voronoi safe.
@@ -93,3 +105,42 @@ def circumcentric_area_per_corner(l, i):
         to_return = triangle_area(l)/4
 
     return to_return
+
+def circumcentric_area_per_corner_igl_like(l, i):
+    adj1 = (i+1)%3
+    adj2 = (i+2)%3
+    opp = i
+
+    to_return = 0
+
+    # Observe that this is not whole angle, we just need the sign to check for 
+    #   obtuse triangle.
+    # gamma is angle at corner i.
+    cot_gamma = l[adj1]**2 + l[adj2]**2 - l[opp]**2
+    cot_alpha = l[adj2]**2 + l[opp]**2 - l[adj1]**2
+    cot_beta = l[adj1]**2 + l[opp]**2 - l[adj2]**2
+
+    #### Try normalization. #####
+    cos_gamma = cot_gamma/(2*l[adj1]*l[adj2])
+    cos_alpha = cot_alpha/(2*l[adj2]*l[opp])
+    cos_beta = cot_beta/(2*l[adj1]*l[opp])
+
+    normalized = np.zeros((3))
+    normalized[opp] = cos_gamma * l[opp]
+    normalized[adj1] = cos_alpha * l[adj1]
+    normalized[adj2] = cos_beta * l[adj2]
+
+    normalized = normalized/np.sum(normalized)
+    normalized = normalized * triangle_area(l)
+
+    normalized[opp] = (normalized[adj1] + normalized[adj2])/2
+
+    if(cos_gamma < 0):
+        return triangle_area(l)/2
+    elif ((cos_alpha < 0) or (cos_beta < 0)):
+        return triangle_area(l)/4
+    else:
+        return normalized[opp]
+
+    print("ERROR: incorrect angle at circumcenter_area_per_corner.")
+    return -1
