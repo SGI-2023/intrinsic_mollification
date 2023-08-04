@@ -19,7 +19,7 @@ Inputs:
 Outputs:
     dblA: #F list of triangles double area.
 ''' 
-def doublearea_intrinsic(ul):
+def doublearea_intrinsic(l):
     dblA = numpy.zeros(len(l))
     for i in range(len(l)):
         edges = l[i]
