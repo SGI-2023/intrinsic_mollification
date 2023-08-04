@@ -16,7 +16,7 @@ import igl
 '''
 
 
-def cotanLaplace(F, L):
+def cotanLaplace(F, L, neg_hack="none", nan_hack="none"):
 
     Vsize = np.max(F) + 1
 
@@ -37,6 +37,18 @@ def cotanLaplace(F, L):
             k = (i+2) % 3
             # Get w per corner:
             wjk = (lengths[j] ** 2 + lengths[k] ** 2 - lengths[i] ** 2) / (8*area)
+
+            if  wjk < 0 and neg_hack != "none":
+                if neg_hack == "to_abs":
+                    wjk = - wjk
+                elif neg_hack == "to_one":
+                    wjk = 1
+
+            if np.isnan(wjk) and nan_hack != "none":
+                if nan_hack == "to_zero":
+                    wjk = 0
+                elif nan_hack == "to_one":
+                    wjk = 1
 
             # Update the cotan-Laplace matrix.
             fr = F[face]
