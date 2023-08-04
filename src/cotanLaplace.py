@@ -6,17 +6,32 @@
 import scipy as sp
 import numpy as np
 import igl
+from enum import Enum
+
+
+class NEG_HACK(Enum):
+    NONE=0
+    TO_ABS=1
+    TO_ONE=2
+
+class NAN_HACK(Enum):
+    NONE=0
+    TO_ZERO=1
+    TO_ONE=2
+
 
 '''
     Parameters:
         F: List of faces, a N x 3 matrix where each entry is a indexed vertex
         L: Lengths of edges in the order of edges [1, 2], [2, 0], [0, 1].
+        neg_hack: How to handle negative weights.   Options: "none" (default), "to_abs", "to_one".
+        nan_hack: How to handle NaN weights.        Options: "none" (default), "to_zero", "to_one".
     Returns:
         Laplacian: Laplacian in format of a lil_matrix from scipy sparse matrix.
 '''
 
 
-def cotanLaplace(F, L, neg_hack="none", nan_hack="none"):
+def cotanLaplace(F, L, neg_hack=NEG_HACK.NONE, nan_hack=NAN_HACK.NONE):
 
     Vsize = np.max(F) + 1
 
