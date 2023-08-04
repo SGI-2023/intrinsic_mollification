@@ -38,23 +38,23 @@ def lscm(V, F):
     :
 
     """
-    b = igl.boundary_facets(F)
-    bc = 
-    Q = lscm_hessian(V, F)
+    # b = igl.boundary_facets(F)
+    # bc = igl.boudary_condition(V, F)
+    # Q = lscm_hessian(V, F)
 
-    b_flat = np.repeat(b * V.shape[0], bc.shape[1])
-    bc_flat = bc.flatten()
+    # b_flat = np.repeat(b * V.shape[0], bc.shape[1])
+    # bc_flat = bc.flatten()
 
-    B_flat = np.zeros(V.shape[0] * 2)
+    # B_flat = np.zeros(V.shape[0] * 2)
 
-    data = igl.min_quad_with_fixed_precompute(Q, b_flat, igl.EigenSparseMatrixd(), True)
-    W_flat = igl.min_quad_with_fixed_solve(data, B_flat, bc_flat)
+    # data = igl.min_quad_with_fixed_precompute(Q, b_flat, igl.EigenSparseMatrixd(), True)
+    # W_flat = igl.min_quad_with_fixed_solve(data, B_flat, bc_flat)
 
-    V_uv = np.zeros((V.shape[0], 2))
-    V_uv[:, 0] = W_flat[:V.shape[0]]
-    V_uv[:, 1] = W_flat[V.shape[0]:]
+    # V_uv = np.zeros((V.shape[0], 2))
+    # V_uv[:, 0] = W_flat[:V.shape[0]]
+    # V_uv[:, 1] = W_flat[V.shape[0]:]
 
-    return V_uv, Q
+    # return V_uv, Q
 
 
 from scipy.sparse import coo_matrix
