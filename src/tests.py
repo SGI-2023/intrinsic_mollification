@@ -5,6 +5,7 @@ import igl
 from Mollification import *
 from cotanLaplace import *
 from massmatrix import *
+from buildGlueMap import *
 
 
 
@@ -101,3 +102,46 @@ print("massmatrix norm: ", sp.sparse.linalg.norm(mc_intrinsic))
 print("Norm of difference IGL - Computed: ", sp.sparse.linalg.norm(mc_igl - mc_intrinsic))
 print("Norm of difference IGL - Computed_igl_like: ", sp.sparse.linalg.norm(mc_igl - mc_igl_like))
 print("Norm of difference Computed - Computed_igl_like: ", sp.sparse.linalg.norm(mc_intrinsic - mc_igl_like))
+
+#################################       GLUEMAP       #################################
+print("______________________________________________________________")
+print("Testing connstructGlueMap function")
+
+[V,F]= igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "spot.obj"))
+
+G = build_gluing_map(F)
+
+print("______________________________________________________________")
+print("Testing connstructGlueMap function")
+
+[V,F]= igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "BadCone.obj"))
+
+G = build_gluing_map(F)
+
+print("______________________________________________________________")
+print("Testing connstructGlueMap function")
+
+[V,F]= igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "Bunny.obj"))
+
+G = build_gluing_map(F)
+
+print("______________________________________________________________")
+print("Testing connstructGlueMap function")
+
+[V,F]= igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "icoSphere2.obj"))
+
+G = build_gluing_map(F)
+
+
+print("______________________________________________________________")
+print("Testing connstructGlueMap function on a mesh with boundary")
+
+[V,F]= igl.read_triangle_mesh(os.path.join(
+            root_folder, "../data", "goathead.obj"))
+
+G = build_gluing_map(F)
+
