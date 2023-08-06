@@ -53,16 +53,18 @@ def cotanLaplace(F, L, neg_hack=NEG_HACK.NONE, nan_hack=NAN_HACK.NONE):
             # Get w per corner:
             wjk = (lengths[j] ** 2 + lengths[k] ** 2 - lengths[i] ** 2) / (8*area)
 
-            if  wjk < 0 and neg_hack != "none":
-                if neg_hack == "to_abs":
+            # Handle negative weights.
+            if  wjk < 0 and neg_hack != NEG_HACK.NONE:
+                if neg_hack == NEG_HACK.TO_ABS:
                     wjk = - wjk
-                elif neg_hack == "to_one":
+                elif neg_hack == NEG_HACK.TO_ONE:
                     wjk = 1
 
-            if np.isnan(wjk) and nan_hack != "none":
-                if nan_hack == "to_zero":
+            # Handle NaN weights.
+            if (np.isnan(wjk) or np.isinf(wjk)) and nan_hack != NAN_HACK.NONE:
+                if nan_hack == NAN_HACK.TO_ZERO:
                     wjk = 0
-                elif nan_hack == "to_one":
+                elif nan_hack == NAN_HACK.TO_ONE:
                     wjk = 1
 
             # Update the cotan-Laplace matrix.
