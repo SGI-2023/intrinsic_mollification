@@ -21,7 +21,7 @@ def check_mesh_properties(F, L, V):
     if(non_positive_area):
         print("TRIANGLE AREA: Mesh has triangle area at face: ", area_index)
         print("\nApply mollification...")
-        m_L, m_eps, m_newL = IntrinsicMollification(V, F, 1e-5)
+        m_L, m_eps, m_newL = IntrinsicMollificationConstant(V, F, 1e-5)
         print("Mollification epsilon: ", m_eps)
         non_positive_area, area_index = has_zero_area(F, m_newL, 1e-12)
         if(non_positive_area):

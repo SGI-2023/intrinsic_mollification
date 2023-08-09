@@ -7,12 +7,12 @@ from tqdm import tqdm
 from scipy.sparse.linalg import spsolve
 
 from cotanLaplace import cotanLaplace
-from Mollification import IntrinsicMollification
+from Mollification import IntrinsicMollificationConstant
 
     
 [v, f] = igl.read_triangle_mesh("../data/bunny.obj")
 
-[E, eps, newL] = IntrinsicMollification(v, f)
+[E, eps, newL] = IntrinsicMollificationConstant(v, f)
 
 l = cotanLaplace(f, E)
 vs = [v]

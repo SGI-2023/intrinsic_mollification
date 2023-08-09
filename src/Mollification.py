@@ -4,9 +4,305 @@
     (i) reading off the original edge lengths and
     (ii) implementing the formula defined by Sharp & Crane to get new lengths that describe higher-quality triangles.
 
+    Phase ??:
+    Adding Multiple Mollification Schemes as described Below
+
 '''
 
 import igl
+import numpy as np
+import scipy as sp
+import cvxopt as cvx
+
+from enum import Enum
+
+
+'''
+Generalized IntrinsicMollification:
+    - Constant Epsilon (0)
+    - Local schemes (1)
+        - One-By-One Step
+        - One-By-One Interpolated
+        - Local Least-Mollification (Manhattan (L1) -> Lin  Prog)
+        - Local Least-Mollification (Euclidean (L2) -> Quad Prog)
+
+    - (ARAP-like) Sequential Global Schemes (Get local, Pool, ...) (2)
+        - One-By-One Step
+        - One-By-One Interpolated
+        - Local Least-Mollification (Manhattan (L1) -> Lin  Prog)
+        - Local Least-Mollification (Euclidean (L2) -> Quad Prog)
+
+    - Global Optimization Schemes (3, 4)
+        - Global Least-Mollification (Manhattan (L1) -> Lin  Prog) (3)
+        - Global Least-Mollification (Euclidean (L2) -> Quad Prog) (4)
+
+    - Pooling Options for Sequential Global Schemes
+        - Mean
+        - Max
+
+    - Options for delta factor
+        - Mean Edge Length
+        - Min Edge Length
+
+    - Optional: Scale edge lengths down to perserve total area
+
+Methods to Compare Performance:
+- Avg Estimated Time (on ~1k meshes)
+- Avg Epsilon per mesh normalized by Mean Edge Length -> Average this statistic over all meshes
+- Avg Iterations to Convergence per mesh (For (ARAP-like) Sequential Global Schemes)
+
+- Visualize the difference on a bunch of applications and meshes:
+    - Conformal Parameterization (LSCM/SCP)
+    - Laplacian Smoothing (Mean Curvature Flow)
+    - Geodesic Distance (Heat Method)
+    - Simple Poisson Solver (interpolate values)
+    - Manifold Harmonics
+- For each application, try to find a metric of accuracy or a ground truth to compare to in a quantitative manner
+'''
+
+class MOLLIFICATION_SCHEME(Enum):
+    CONSTANT_EPSILON = 0
+    LOCAL_SCHEMES = 1
+    SEQUENTIAL_GLOBAL = 2
+    GLOBAL_OPTIMIZATION_MANHATTAN = 3
+    GLOBAL_OPTIMIZATION_EUCLIDEAN = 4
+
+class MOLLIFICATION_LOCAL_SCHEME(Enum):
+    ONE_BY_ONE_STEP = 0
+    ONE_BY_ONE_INTERPOLATED = 1
+    LOCAL_LEAST_MOLLIFICATION_MANHATTAN = 2
+    LOCAL_LEAST_MOLLIFICATION_EUCLIDEAN = 3
+
+class MOLLIFICATION_DELTA_FACTOR(Enum):
+    MEAN_EDGE_LENGTH = 0
+    MIN_EDGE_LENGTH = 1
+
+class MOLLIFICATION_POOLING(Enum):
+    MEAN = 0
+    MAX = 1
+
+
+'''
+    Parameters:
+        FL: List of face edge lengths, a #F x 3 matrix where each entry is a edge length
+    Optional Parameters:
+        delta: such that l_ij + l_jk > l_ki + delta (for all edges)
+        scheme: which mollification scheme to use. This describes how the algorithm will progress.
+        local_scheme: which local mollification scheme to use. This describes how to mollify each triangle.
+        delta_factor_type: determines the multiplier for delta. This describes how to compute delta (mean or min edge length).
+        pooling: for sequential global schemes, this describes how to pool the local mollifications so that the halfedge lengths match up (mean or max).
+        total_area_preservation: whether or not to scale the edge lengths down to preserve total area.
+    Returns:
+        newFL: new edges lengths in the same shape as FL
+
+'''
+def IntrinsicMollificationFL(FL, delta = 1e-4,
+                             scheme = MOLLIFICATION_SCHEME.CONSTANT_EPSILON,
+                             local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP,
+                             delta_factor_type = MOLLIFICATION_DELTA_FACTOR.MEAN_EDGE_LENGTH,
+                             pooling = MOLLIFICATION_POOLING.MEAN,
+                             total_area_preservation = False):
+    delta = delta * np.mean(FL) if delta_factor_type == MOLLIFICATION_DELTA_FACTOR.MEAN_EDGE_LENGTH else delta * np.min(FL)
+
+    if scheme == MOLLIFICATION_SCHEME.CONSTANT_EPSILON:
+        newFL = IntrinsicMollification_Constant(FL, delta)
+    elif scheme == MOLLIFICATION_SCHEME.LOCAL_SCHEMES:
+        newFL = IntrinsicMollification_Local(FL, delta, local_scheme)
+    elif scheme == MOLLIFICATION_SCHEME.SEQUENTIAL_GLOBAL:
+        newFL = IntrinsicMollification_Sequential_Global(FL, delta, local_scheme, pooling)
+    elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_MANHATTAN:
+        newFL = IntrinsicMollification_Global_Optimization_Manhattan(FL, delta)
+    elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_EUCLIDEAN:
+        newFL = IntrinsicMollification_Global_Optimization_Euclidean(FL, delta)
+
+    if total_area_preservation:
+        pass # TODO: Scale edge lengths down to perserve total area
+
+    return newFL
+
+
+'''
+    Parameters:
+        V: List of coordinates vertices, #V x 3 matrix
+        F: List of faces, a #F x 3 matrix where each entry is a indexed vertex
+    Optional Parameters:
+        delta: such that l_ij + l_jk > l_ki + delta (for all edges)
+        scheme: which mollification scheme to use. This describes how the algorithm will progress.
+        local_scheme: which local mollification scheme to use. This describes how to mollify each triangle.
+        delta_factor_type: determines the multiplier for delta. This describes how to compute delta (mean or min edge length).
+        pooling: for sequential global schemes, this describes how to pool the local mollifications so that the halfedge lengths match up (mean or max).
+        total_area_preservation: whether or not to scale the edge lengths down to preserve total area.
+    Returns:
+        newFL: new edges lengths in the same shape as FL
+'''
+def IntrinsicMollification(V, F, delta = 1e-4,
+                           scheme = MOLLIFICATION_SCHEME.CONSTANT_EPSILON,
+                           local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP,
+                           delta_factor_type = MOLLIFICATION_DELTA_FACTOR.MEAN_EDGE_LENGTH,
+                           pooling = MOLLIFICATION_POOLING.MEAN,
+                           total_area_preservation = False):
+    FL = igl.edge_lengths(V, F)         # columns correspond to edges lengths [1,2],[2,0],[0,1]
+    return IntrinsicMollificationFL (FL, delta, scheme, local_scheme, delta_factor_type, pooling, total_area_preservation)
+
+
+'''
+    Parameters:
+        FL: List of face edge lengths, a #F x 3 matrix where each entry is a edge length
+
+    Optional Parameters:
+        delta: such that l_ij + l_jk > l_ki + delta (for all edges), Note delta is scaled by the mean (or min) edge length
+
+    Returns:
+        newL: new edges lengths in the same shape as FL (a #F x 3 matrix where each entry is a edge length)
+'''
+
+def IntrinsicMollification_Constant(FL, delta = 1e-4):
+    eps = 0.0
+
+    # replaced the loop above with np operations (vectorized, so much faster)
+    eps = max(np.max( [delta + FL[:,0] - FL[:,1] - FL[:,2], delta - FL[:,0] + FL[:,1] - FL[:,2], delta - FL[:,0] - FL[:,1] + FL[:,2] ]  ), 0)
+
+    newL = eps + FL
+    #print(newL)
+    return newL
+
+
+def IntrinsicMollification_Local(FL, delta = 1e-4,
+                                 local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP):
+    if local_scheme == MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP:
+        for i in range(len(FL)):
+            FL[i] = IntrinsicMollification_Triangle_OneByOneStep(FL[i], delta)
+    elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_INTERPOLATED:
+        for i in range(len(FL)):
+            FL[i] = IntrinsicMollification_Triangle_OneByOneInterpolated(FL[i], delta)
+    elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_MANHATTAN:
+        FL = IntrinsicMollification_Triangle_LocalLeastManhattan(FL, delta)
+    elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_EUCLIDEAN:
+        FL = IntrinsicMollification_Triangle_LocalLeastEuclidean(FL, delta)
+
+    return FL
+
+def IntrinsicMollification_Triangle_OneByOneStep(L, delta = 1e-4):
+    # reorder a, b, c so that c <= b <= a
+    L_index = np.argsort(L)
+    a = L[L_index[2]]
+    b = L[L_index[1]]
+    c = L[L_index[0]]
+
+    # (step) mollify
+    c = max(c, delta + a - b, delta + b - a)
+    b = max(b, c)
+    a = max(a, b)
+
+    # reorder back to original order
+    L[L_index[0]] = c
+    L[L_index[1]] = b
+    L[L_index[2]] = a
+
+    #print(L)
+    return L
+
+def IntrinsicMollification_Triangle_OneByOneInterpolated(L, delta = 1e-4):
+    # reorder a, b, c so that c <= b <= a
+    L_index = np.argsort(L)
+    a = L[L_index[2]]
+    b = L[L_index[1]]
+    c = L[L_index[0]]
+
+    # (interpolated) mollify
+    # c, a are the same as step mollification, but b is interpolated
+    c_prev = c
+    c = max(c, delta + a - b, delta + b - a)
+    b = max(c, b + (b - c_prev) / (a - c_prev) * delta)
+    a = max(a, b)
+
+    # reorder back to original order
+    L[L_index[0]] = c
+    L[L_index[1]] = b
+    L[L_index[2]] = a
+
+    #print(L)
+    return L
+
+def IntrinsicMollification_Triangle_LocalLeastManhattan(L, delta = 1e-4):
+    # we want to minimize the Manhattan distance between the original and new edge lengths
+    # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
+
+    # min C'x
+    C = np.ones(3) # C = [1, 1, 1]
+
+    # s.t. Ax <= b
+    # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
+    # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
+    A = np.array([[-1, -1, 1],
+                  [1, -1, -1],
+                  [-1, 1, -1],
+                  [-1, 0, 0],
+                  [0, -1, 0],
+                  [0, 0, -1]])
+
+    b = np.array([- delta,   - delta,    - delta,    0,     0,    0])
+
+    for i in range(len(L)):
+        # see if the triangle is already good
+        eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
+        if eps <= 0:
+            continue
+
+        #print(L[i])
+        b[3] = -L[i][0]
+        b[4] = -L[i][1]
+        b[5] = -L[i][2]
+        # solve
+        L[i] = sp.optimize.linprog(C, A, b).x
+        #print(L[i])
+
+    return L
+
+def IntrinsicMollification_Triangle_LocalLeastEuclidean(L, delta = 1e-4):
+    # we want to minimize the Euclidean distance between the original and new edge lengths
+    # we can do this by minimizing the sum of the squares of the differences, which is a quadratic program
+    cvx.solvers.options['show_progress'] = False
+
+    # min 1/2 x'Px + q'x
+    # we need to minimize 1/2 (a - a_0)^2 + (b - b_0)^2 + (c - c_0)^2
+    # x = [a - a_0, b - b_0, c - c_0] = [a, b, c] - [a_0, b_0, c_0] = [u, v, w]
+    P = cvx.matrix(np.eye(3, dtype=float)) # 3x3 identity matrix
+
+    q = cvx.matrix(np.zeros((3,1), dtype=float)) # 3x1 zero vector
+
+    # s.t. Gx <= h
+    # a_0 + u + b_0 + v >= c_0 + w + delta, b_0 + v + c_0 + w >= a_0 + u + delta, c_0 + w + a_0 + u >= b_0 + v + delta, u>=0, v>=0, w>=0
+    # rewrite 1<->3 as: - u - v + w <= a_0 + b_0 - c_0 - delta and so on
+    G = cvx.matrix(np.array(
+                    [[-1., -1., 1.],
+                    [1., -1., -1.],
+                    [-1., 1., -1.],
+                    [-1., 0., 0.],
+                    [0., -1., 0.],
+                    [0., 0., -1.]], dtype=float))
+
+    h = cvx.matrix(np.array([0, 0, 0, 0, 0, 0], dtype=float))
+
+    for i in range(len(L)):
+        # see if the triangle is already good
+        eps = max([delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2]])
+        if eps <= 0:
+            continue
+
+        #print(L[i])
+        h[0] = L[i][0] + L[i][1] - L[i][2] - delta
+        h[1] = - L[i][0] + L[i][1] + L[i][2] - delta
+        h[2] = L[i][0] - L[i][1] + L[i][2] - delta
+
+        # solve
+        eps = cvx.solvers.qp(P, q, G, h)
+        #print(np.array(eps["x"]).transpose(), L + np.array(eps["x"]).transpose())
+        L[i] = L[i] + np.array(eps["x"]).transpose()
+        #print(L[i])
+
+    return L
+
 
 '''
     Parameters:
@@ -17,16 +313,15 @@ import igl
     Returns:
         L: columns correspond to original edges lengths [1,2],[2,0],[0,1]
         eps = max_T max(0, delta - l_ij - l_jk - l_ki )
-        newL: new edges lengths in the same shape as L      
+        newL: new edges lengths in the same shape as L
 '''
 
-def IntrinsicMollification(V, F, delta = 1e-4):
+def IntrinsicMollificationConstant(V, F, delta = 1e-4):
     L = igl.edge_lengths(V, F)         # columns correspond to edges lengths [1,2],[2,0],[0,1]
     eps = 0.0
 
-    # iterate over each triangle to compute epsilon
-    for T in L:
-        eps = max(   [eps, delta + T[0] - T[1] - T[2], delta - T[0] + T[1] - T[2], delta - T[0] - T[1] + T[2] ]  )
+    # replaced the loop above with np operations (vectorized, so much faster)
+    eps = max(np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ), 0)
 
     newL = eps + L
     return L, eps, newL

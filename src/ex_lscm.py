@@ -5,7 +5,7 @@ import numpy as np
 from scipy.sparse.linalg import eigs
 
 from massmatrix import massmatrix
-from Mollification import IntrinsicMollification
+from Mollification import IntrinsicMollificationConstant
 from cotanLaplace import cotanLaplace
 from scipy.sparse import coo_matrix, bmat
 from massmatrix import massmatrix
@@ -46,7 +46,7 @@ def repdiag(A, d):
     return B
 
 def lscm_hessian(V, F):
-    newL = IntrinsicMollification(V, F)[-1]
+    newL = IntrinsicMollificationConstant(V, F)[-1]
     # Assemble the area matrix (note that A is #Vx2 by #Vx2)
     A = vector_area_matrix(F)
     # Assemble the cotan laplacian matrix
@@ -57,7 +57,7 @@ def lscm_hessian(V, F):
     return Q
 
 def scp(V, F):
-    newL = IntrinsicMollification(V, F)[-1]
+    newL = IntrinsicMollificationConstant(V, F)[-1]
     Q = lscm_hessian(V, F)
     u,v = eigs(Q)
     sortedIndices = np.argsort(u)
