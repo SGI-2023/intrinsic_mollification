@@ -170,61 +170,73 @@ def IntrinsicMollification_Constant(FL, delta = 1e-4):
 def IntrinsicMollification_Local(FL, delta = 1e-4,
                                  local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP):
     if local_scheme == MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP:
-        for i in range(len(FL)):
-            FL[i] = IntrinsicMollification_Triangle_OneByOneStep(FL[i], delta)
+        FL = IntrinsicMollification_Local_OneByOneStep(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_INTERPOLATED:
-        for i in range(len(FL)):
-            FL[i] = IntrinsicMollification_Triangle_OneByOneInterpolated(FL[i], delta)
+        FL = IntrinsicMollification_Local_OneByOneInterpolated(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_MANHATTAN:
-        FL = IntrinsicMollification_Triangle_LocalLeastManhattan(FL, delta)
+        FL = IntrinsicMollification_Local_LocalLeastManhattan(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_EUCLIDEAN:
-        FL = IntrinsicMollification_Triangle_LocalLeastEuclidean(FL, delta)
+        FL = IntrinsicMollification_Local_LocalLeastEuclidean(FL, delta)
 
     return FL
 
-def IntrinsicMollification_Triangle_OneByOneStep(L, delta = 1e-4):
-    # reorder a, b, c so that c <= b <= a
-    L_index = np.argsort(L)
-    a = L[L_index[2]]
-    b = L[L_index[1]]
-    c = L[L_index[0]]
+def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
 
-    # (step) mollify
-    c = max(c, delta + a - b, delta + b - a)
-    b = max(b, c)
-    a = max(a, b)
+    for i in range(len(L)):
+        eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
+        if eps <= 0:
+            continue
 
-    # reorder back to original order
-    L[L_index[0]] = c
-    L[L_index[1]] = b
-    L[L_index[2]] = a
+        # reorder a, b, c so that c <= b <= a
+        L_index = np.argsort(L[i])
+        a = L[i][L_index[2]]
+        b = L[i][L_index[1]]
+        c = L[i][L_index[0]]
 
-    #print(L)
+        # (step) mollify
+        c = max(c, delta + a - b, delta + b - a)
+        b = max(b, c)
+        a = max(a, b)
+
+        # reorder back to original order
+        L[i][L_index[0]] = c
+        L[i][L_index[1]] = b
+        L[i][L_index[2]] = a
+
+    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
+    assert eps <= 1e-14
+
     return L
 
-def IntrinsicMollification_Triangle_OneByOneInterpolated(L, delta = 1e-4):
-    # reorder a, b, c so that c <= b <= a
-    L_index = np.argsort(L)
-    a = L[L_index[2]]
-    b = L[L_index[1]]
-    c = L[L_index[0]]
+def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
+    for i in range(len(L)):
+        eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
+        if eps <= 0:
+            continue
 
-    # (interpolated) mollify
-    # c, a are the same as step mollification, but b is interpolated
-    c_prev = c
-    c = max(c, delta + a - b, delta + b - a)
-    b = max(c, b + (b - c_prev) / (a - c_prev) * delta)
-    a = max(a, b)
+        # reorder a, b, c so that c <= b <= a
+        L_index = np.argsort(L[i])
+        a = L[i][L_index[2]]
+        b = L[i][L_index[1]]
+        c = L[i][L_index[0]]
 
-    # reorder back to original order
-    L[L_index[0]] = c
-    L[L_index[1]] = b
-    L[L_index[2]] = a
+        # (interpolated) mollify
+        c_prev = c
+        c = max(c, delta + a - b, delta + b - a)
+        b = max(c, b + (b - c_prev) / (a - c_prev) * delta)
+        a = max(a, b)
 
-    #print(L)
+        # reorder back to original order
+        L[i][L_index[0]] = c
+        L[i][L_index[1]] = b
+        L[i][L_index[2]] = a
+
+    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
+    assert eps <= 1e-14
+
     return L
 
-def IntrinsicMollification_Triangle_LocalLeastManhattan(L, delta = 1e-4):
+def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
     # we want to minimize the Manhattan distance between the original and new edge lengths
     # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
 
@@ -257,9 +269,12 @@ def IntrinsicMollification_Triangle_LocalLeastManhattan(L, delta = 1e-4):
         L[i] = sp.optimize.linprog(C, A, b).x
         #print(L[i])
 
+    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
+    assert eps <= 1e-14
+
     return L
 
-def IntrinsicMollification_Triangle_LocalLeastEuclidean(L, delta = 1e-4):
+def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
     # we want to minimize the Euclidean distance between the original and new edge lengths
     # we can do this by minimizing the sum of the squares of the differences, which is a quadratic program
     cvx.solvers.options['show_progress'] = False
@@ -300,6 +315,9 @@ def IntrinsicMollification_Triangle_LocalLeastEuclidean(L, delta = 1e-4):
         #print(np.array(eps["x"]).transpose(), L + np.array(eps["x"]).transpose())
         L[i] = L[i] + np.array(eps["x"]).transpose()
         #print(L[i])
+
+    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
+    assert eps <= 1e-14
 
     return L
 
