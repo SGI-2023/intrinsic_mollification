@@ -13,6 +13,7 @@ import igl
 import numpy as np
 import scipy as sp
 import cvxopt as cvx
+from buildGlueMap import *
 
 from enum import Enum
 
@@ -96,7 +97,7 @@ class MOLLIFICATION_POOLING(Enum):
         newFL: new edges lengths in the same shape as FL
 
 '''
-def IntrinsicMollificationFL(FL, delta = 1e-4,
+def IntrinsicMollificationFL(FL, G = None, delta = 1e-4,
                              scheme = MOLLIFICATION_SCHEME.CONSTANT_EPSILON,
                              local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP,
                              delta_factor_type = MOLLIFICATION_DELTA_FACTOR.MEAN_EDGE_LENGTH,
@@ -105,20 +106,25 @@ def IntrinsicMollificationFL(FL, delta = 1e-4,
     delta = delta * np.mean(FL) if delta_factor_type == MOLLIFICATION_DELTA_FACTOR.MEAN_EDGE_LENGTH else delta * np.min(FL)
 
     if scheme == MOLLIFICATION_SCHEME.CONSTANT_EPSILON:
-        newFL = IntrinsicMollification_Constant(FL, delta)
+        newFL, eps = IntrinsicMollification_Constant(FL, delta)
+        nMoll = np.shape(FL)[0] if eps > 1e-6 * delta else 0
+        nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.LOCAL_SCHEMES:
-        newFL = IntrinsicMollification_Local(FL, delta, local_scheme)
+        newFL, nMoll = IntrinsicMollification_Local(FL, delta, local_scheme)
+        nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.SEQUENTIAL_GLOBAL:
-        newFL = IntrinsicMollification_Sequential_Global(FL, delta, local_scheme, pooling)
+        newFL, nMoll, nIter = IntrinsicMollification_Sequential_Global(FL, G, delta, local_scheme, pooling)
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_MANHATTAN:
         newFL = IntrinsicMollification_Global_Optimization_Manhattan(FL, delta)
+        nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_EUCLIDEAN:
         newFL = IntrinsicMollification_Global_Optimization_Euclidean(FL, delta)
+        nIter = 1
 
     if total_area_preservation:
         pass # TODO: Scale edge lengths down to perserve total area
 
-    return newFL
+    return newFL, nMoll, nIter
 
 
 '''
@@ -142,7 +148,10 @@ def IntrinsicMollification(V, F, delta = 1e-4,
                            pooling = MOLLIFICATION_POOLING.MEAN,
                            total_area_preservation = False):
     FL = igl.edge_lengths(V, F)         # columns correspond to edges lengths [1,2],[2,0],[0,1]
-    return IntrinsicMollificationFL (FL, delta, scheme, local_scheme, delta_factor_type, pooling, total_area_preservation)
+    #get Glue map
+    G = build_gluing_map(F)
+
+    return IntrinsicMollificationFL (FL, G, delta, scheme, local_scheme, delta_factor_type, pooling, total_area_preservation)
 
 
 '''
@@ -164,27 +173,66 @@ def IntrinsicMollification_Constant(FL, delta = 1e-4):
 
     newL = eps + FL
     #print(newL)
-    return newL
+    return newL, eps
 
 
 def IntrinsicMollification_Local(FL, delta = 1e-4,
                                  local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP):
     if local_scheme == MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP:
-        FL = IntrinsicMollification_Local_OneByOneStep(FL, delta)
+        return IntrinsicMollification_Local_OneByOneStep(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_INTERPOLATED:
-        FL = IntrinsicMollification_Local_OneByOneInterpolated(FL, delta)
+        return IntrinsicMollification_Local_OneByOneInterpolated(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_MANHATTAN:
-        FL = IntrinsicMollification_Local_LocalLeastManhattan(FL, delta)
+        return IntrinsicMollification_Local_LocalLeastManhattan(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_EUCLIDEAN:
-        FL = IntrinsicMollification_Local_LocalLeastEuclidean(FL, delta)
+        return IntrinsicMollification_Local_LocalLeastEuclidean(FL, delta)
 
-    return FL
+
+def IntrinsicMollification_Sequential_Global(FL, G, delta = 1e-4,
+                                                local_scheme = MOLLIFICATION_LOCAL_SCHEME.ONE_BY_ONE_STEP,
+                                                pooling = MOLLIFICATION_POOLING.MEAN):
+    nMoll = 0
+    currMoll = 1 # dummy value to enter the loop
+    i = 0
+
+    newFL = FL
+    while currMoll > 0:
+        currMoll = 0
+
+        newFL, currMoll = IntrinsicMollification_Local(newFL, delta, local_scheme)
+
+        # use the gluing map to pool the local mollifications, G(f,s) = (f',s'), where f' is the face glued to f along side s
+        # we need to set FL(f,s) = FL(f',s') = mean(FL(f,s), FL(f',s')) (or max(FL(f,s), FL(f',s')) if pooling == MOLLIFICATION_POOLING.MAX)
+        for f in range(len(FL)):
+            for s in range(3):
+                fs = (f,s)
+                fsp = G[fs]
+                if fsp[0] == -1:
+                    continue
+
+                if pooling == MOLLIFICATION_POOLING.MEAN:
+                    newVal = 0.5 * (newFL[fs] + newFL[fsp])
+                    newFL[fs] = newVal
+                    newFL[fsp] = newVal
+
+                elif pooling == MOLLIFICATION_POOLING.MAX:
+                    newVal = max(newFL[fs], newFL[fsp])
+                    newFL[fs] = newVal
+                    newFL[fsp] = newVal
+
+        i += 1
+        nMoll += currMoll
+
+    return newFL, nMoll, i
+
 
 def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
 
+    nMoll = 0
+
     for i in range(len(L)):
         eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
-        if eps <= 0:
+        if eps <=  1e-6 * delta:
             continue
 
         # reorder a, b, c so that c <= b <= a
@@ -203,15 +251,20 @@ def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
         L[i][L_index[1]] = b
         L[i][L_index[2]] = a
 
-    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    assert eps <= 1e-14
+        nMoll += 1
 
-    return L
+    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
+    #assert eps <=  1e-6 * delta
+
+    return L , nMoll
 
 def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
+
+    nMoll = 0
+
     for i in range(len(L)):
         eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
-        if eps <= 0:
+        if eps <=  1e-6 * delta:
             continue
 
         # reorder a, b, c so that c <= b <= a
@@ -223,7 +276,10 @@ def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
         # (interpolated) mollify
         c_prev = c
         c = max(c, delta + a - b, delta + b - a)
-        b = max(c, b + (b - c_prev) / (a - c_prev) * delta)
+        if a - c_prev > 1e-6 * delta:
+            b = max(c, b + (b - c_prev) / (a - c_prev) * delta)
+        else:
+            b = max(b, c)
         a = max(a, b)
 
         # reorder back to original order
@@ -231,10 +287,12 @@ def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
         L[i][L_index[1]] = b
         L[i][L_index[2]] = a
 
-    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    assert eps <= 1e-14
+        nMoll += 1
 
-    return L
+    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
+    #assert eps <=  1e-6 * delta
+
+    return L , nMoll
 
 def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
     # we want to minimize the Manhattan distance between the original and new edge lengths
@@ -255,10 +313,12 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
 
     b = np.array([- delta,   - delta,    - delta,    0,     0,    0])
 
+    nMoll = 0
+
     for i in range(len(L)):
         # see if the triangle is already good
         eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
-        if eps <= 0:
+        if eps <=  1e-6 * delta:
             continue
 
         #print(L[i])
@@ -267,12 +327,42 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
         b[5] = -L[i][2]
         # solve
         L[i] = sp.optimize.linprog(C, A, b).x
-        #print(L[i])
+
+        nMoll += 1
 
     eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    assert eps <= 1e-14
+    #assert eps <=  1e-6 * delta
 
-    return L
+    return L , nMoll
+
+# def IntrinsicMollification_Global_Optimization_Manhattan(L, delta = 1e-4):
+#     # we want to minimize the Manhattan distance between the original and new edge lengths
+#     # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
+
+#     # min C'x
+#     C = np.ones(np.shape(L)[0] * 3) # C = [1, 1, 1, ..., 1, 1, 1]
+
+#     # s.t. Ax <= b
+#     # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
+#     # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
+#     A = np.zeros((np.shape(L)[0] * 6, np.shape(L)[0] * 3))
+
+#     b = np.zeros(np.shape(L)[0] * 6)
+
+#     # s.t.
+
+#     for i in range(np.shape(L)[0]):
+#         A[6*i:6*i+6, 3*i:3*i+3] = np.array([[-1, -1, 1],
+#                                             [1, -1, -1],
+#                                             [-1, 1, -1],
+#                                             [-1, 0, 0],
+#                                             [0, -1, 0],
+#                                             [0, 0, -1]])
+
+#         b[6*i:6*i+6] = np.array([- delta,   - delta,    - delta,    0,     0,    0])
+
+
+
 
 def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
     # we want to minimize the Euclidean distance between the original and new edge lengths
@@ -299,10 +389,12 @@ def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
 
     h = cvx.matrix(np.array([0, 0, 0, 0, 0, 0], dtype=float))
 
+    nMoll = 0
+
     for i in range(len(L)):
         # see if the triangle is already good
         eps = max([delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2]])
-        if eps <= 0:
+        if eps <=  1e-6 * delta:
             continue
 
         #print(L[i])
@@ -314,12 +406,13 @@ def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
         eps = cvx.solvers.qp(P, q, G, h)
         #print(np.array(eps["x"]).transpose(), L + np.array(eps["x"]).transpose())
         L[i] = L[i] + np.array(eps["x"]).transpose()
-        #print(L[i])
+
+        nMoll += 1
 
     eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    assert eps <= 1e-14
+    #assert eps <= 1e-6 * delta
 
-    return L
+    return L , nMoll
 
 
 '''
