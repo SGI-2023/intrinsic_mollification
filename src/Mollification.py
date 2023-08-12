@@ -82,6 +82,11 @@ class MOLLIFICATION_POOLING(Enum):
     MEAN = 0
     MAX = 1
 
+def CheckInequalityLocal(L, delta = 1e-4, threshold = 1e-6):
+    return max(delta + L[0] - L[1] - L[2], delta - L[0] + L[1] - L[2], delta - L[0] - L[1] + L[2]) < threshold * delta
+
+def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1e-6):
+    return np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ) < threshold * delta
 
 '''
     Parameters:
@@ -110,10 +115,12 @@ def IntrinsicMollificationFL(FL, G = None, delta = 1e-4,
         nMoll = np.shape(FL)[0] if eps > 1e-6 * delta else 0
         nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.LOCAL_SCHEMES:
-        newFL, nMoll = IntrinsicMollification_Local(FL, delta, local_scheme)
+        newFL = np.copy(FL)
+        newFL, nMoll = IntrinsicMollification_Local(newFL, delta, local_scheme)
         nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.SEQUENTIAL_GLOBAL:
-        newFL, nMoll, nIter = IntrinsicMollification_Sequential_Global(FL, G, delta, local_scheme, pooling)
+        newFL = np.copy(FL)
+        newFL, nMoll, nIter = IntrinsicMollification_Sequential_Global(newFL, G, delta, local_scheme, pooling)
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_MANHATTAN:
         newFL = IntrinsicMollification_Global_Optimization_Manhattan(FL, delta)
         nIter = 1
@@ -149,7 +156,10 @@ def IntrinsicMollification(V, F, delta = 1e-4,
                            total_area_preservation = False):
     FL = igl.edge_lengths(V, F)         # columns correspond to edges lengths [1,2],[2,0],[0,1]
     #get Glue map
-    G = build_gluing_map(F)
+    if scheme == MOLLIFICATION_SCHEME.SEQUENTIAL_GLOBAL:
+        G = build_gluing_map(F)
+    else:
+        G = None
 
     return IntrinsicMollificationFL (FL, G, delta, scheme, local_scheme, delta_factor_type, pooling, total_area_preservation)
 
@@ -195,23 +205,25 @@ def IntrinsicMollification_Sequential_Global(FL, G, delta = 1e-4,
     currMoll = 1 # dummy value to enter the loop
     i = 0
 
-    newFL = FL
     while currMoll > 0:
         currMoll = 0
 
-        newFL, currMoll = IntrinsicMollification_Local(newFL, delta, local_scheme)
+        newFL, currMoll = IntrinsicMollification_Local(FL, delta, local_scheme)
 
         # use the gluing map to pool the local mollifications, G(f,s) = (f',s'), where f' is the face glued to f along side s
         # we need to set FL(f,s) = FL(f',s') = mean(FL(f,s), FL(f',s')) (or max(FL(f,s), FL(f',s')) if pooling == MOLLIFICATION_POOLING.MAX)
         for f in range(len(FL)):
             for s in range(3):
                 fs = (f,s)
-                fsp = G[fs]
-                if fsp[0] == -1:
+                fsp = tuple(G[fs])
+                #print(type(fs), type(fsp))
+                #print(fs, fsp)
+                if fsp[0] == -1 or fsp[1] == -1:
                     continue
 
                 if pooling == MOLLIFICATION_POOLING.MEAN:
                     newVal = 0.5 * (newFL[fs] + newFL[fsp])
+                    #print(newVal, newFL[fs], newFL[fsp])
                     newFL[fs] = newVal
                     newFL[fsp] = newVal
 
@@ -222,6 +234,8 @@ def IntrinsicMollification_Sequential_Global(FL, G, delta = 1e-4,
 
         i += 1
         nMoll += currMoll
+        if i > 100:
+            print(i, currMoll, nMoll)
 
     return newFL, nMoll, i
 
@@ -231,8 +245,7 @@ def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
     nMoll = 0
 
     for i in range(len(L)):
-        eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
-        if eps <=  1e-6 * delta:
+        if CheckInequalityLocal(L[i], delta):
             continue
 
         # reorder a, b, c so that c <= b <= a
@@ -253,8 +266,7 @@ def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
 
         nMoll += 1
 
-    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    #assert eps <=  1e-6 * delta
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -263,8 +275,7 @@ def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
     nMoll = 0
 
     for i in range(len(L)):
-        eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
-        if eps <=  1e-6 * delta:
+        if CheckInequalityLocal(L[i], delta):
             continue
 
         # reorder a, b, c so that c <= b <= a
@@ -289,8 +300,7 @@ def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
 
         nMoll += 1
 
-    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    #assert eps <=  1e-6 * delta
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -317,8 +327,7 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
 
     for i in range(len(L)):
         # see if the triangle is already good
-        eps = max(delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2])
-        if eps <=  1e-6 * delta:
+        if CheckInequalityLocal(L[i], delta):
             continue
 
         #print(L[i])
@@ -330,8 +339,7 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
 
         nMoll += 1
 
-    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    #assert eps <=  1e-6 * delta
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -393,8 +401,7 @@ def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
 
     for i in range(len(L)):
         # see if the triangle is already good
-        eps = max([delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2]])
-        if eps <=  1e-6 * delta:
+        if CheckInequalityLocal(L[i], delta):
             continue
 
         #print(L[i])
@@ -409,8 +416,7 @@ def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
 
         nMoll += 1
 
-    eps = np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  )
-    #assert eps <= 1e-6 * delta
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
