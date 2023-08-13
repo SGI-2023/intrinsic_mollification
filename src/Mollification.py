@@ -122,7 +122,8 @@ def IntrinsicMollificationFL(FL, G = None, delta = 1e-4,
         newFL = np.copy(FL)
         newFL, nMoll, nIter = IntrinsicMollification_Sequential_Global(newFL, G, delta, local_scheme, pooling)
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_MANHATTAN:
-        newFL = IntrinsicMollification_Global_Optimization_Manhattan(FL, delta)
+        newFL = np.copy(FL)
+        newFL, nMoll = IntrinsicMollification_Global_Optimization_Manhattan(newFL, G, delta)
         nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_EUCLIDEAN:
         newFL = IntrinsicMollification_Global_Optimization_Euclidean(FL, delta)
@@ -156,7 +157,9 @@ def IntrinsicMollification(V, F, delta = 1e-4,
                            total_area_preservation = False):
     FL = igl.edge_lengths(V, F)         # columns correspond to edges lengths [1,2],[2,0],[0,1]
     #get Glue map
-    if scheme == MOLLIFICATION_SCHEME.SEQUENTIAL_GLOBAL:
+    if scheme == MOLLIFICATION_SCHEME.SEQUENTIAL_GLOBAL or                          \
+        scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_EUCLIDEAN or             \
+        scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_MANHATTAN:
         G = build_gluing_map(F)
     else:
         G = None
@@ -343,31 +346,112 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
 
     return L , nMoll
 
-# def IntrinsicMollification_Global_Optimization_Manhattan(L, delta = 1e-4):
-#     # we want to minimize the Manhattan distance between the original and new edge lengths
-#     # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
+def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
+    # we want to minimize the Manhattan distance between the original and new edge lengths
+    # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
 
-#     # min C'x
-#     C = np.ones(np.shape(L)[0] * 3) # C = [1, 1, 1, ..., 1, 1, 1]
+    # we need to build E2FL & FL2E, initially set to -1
+    E2FL = np.full((len(FL) * 3, 2), -1, dtype=int)
+    FL2E = np.full((len(FL), 3), -1, dtype=int)
 
-#     # s.t. Ax <= b
-#     # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
-#     # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
-#     A = np.zeros((np.shape(L)[0] * 6, np.shape(L)[0] * 3))
+    iE = 0
 
-#     b = np.zeros(np.shape(L)[0] * 6)
+    for i in range(len(FL)):
+        # Optimization: we can't skip faces that are already good because their side lengths may change from the mollification neighboring faces
+        # but we can skip faces that are already good and also have already good neighbors
+        # TODO: implement this optimization
 
-#     # s.t.
+        for j in range(3):
+            fs = (i,j)
+            fsp = tuple(G[fs])
 
-#     for i in range(np.shape(L)[0]):
-#         A[6*i:6*i+6, 3*i:3*i+3] = np.array([[-1, -1, 1],
-#                                             [1, -1, -1],
-#                                             [-1, 1, -1],
-#                                             [-1, 0, 0],
-#                                             [0, -1, 0],
-#                                             [0, 0, -1]])
+            if fsp[0] == -1 or fsp[1] == -1: # boundary edge so no need to check if we have already added it
+                E2FL[iE,0] = fs[0]
+                E2FL[iE,1] = fs[1]
+                FL2E[fs] = iE
+                iE += 1
 
-#         b[6*i:6*i+6] = np.array([- delta,   - delta,    - delta,    0,     0,    0])
+            else:
+                if FL2E[fs] == -1:
+                    E2FL[iE,0] = fs[0]
+                    E2FL[iE,1] = fs[1]
+                    FL2E[fs] = iE
+                    FL2E[fsp] = iE
+                    iE += 1
+
+    E2FL = E2FL[:iE]
+
+    # min C'x
+    C = np.ones(np.shape(E2FL)[0]) # C = [1, 1, 1, ...]
+
+    # s.t. Ax <= b
+    # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
+    # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
+    A = np.zeros((np.shape(E2FL)[0] * 3, np.shape(E2FL)[0]), dtype=float)
+    b = np.zeros(np.shape(E2FL)[0] * 3, dtype=float)
+
+    iA = 0
+    nMoll = 0
+
+    # s.t.
+
+    for i in range(len(E2FL)):
+        fs = (E2FL[i][0], E2FL[i][1])
+        fsp = tuple(G[fs])
+
+        iL1 = i
+        iL2 = FL2E[fs[0], (fs[1] + 1) % 3]
+        iL3 = FL2E[fs[0], (fs[1] + 2) % 3]
+
+        A[iA, iL1] = 1
+        A[iA, iL2] = -1
+        A[iA, iL3] = -1
+
+        b[iA] = - delta
+
+        iA += 1
+        nMoll += 1
+
+        if fsp[0] != -1 and fsp[1] != -1:
+            iL1 = i
+            iL2 = FL2E[fsp[0], (fsp[1] + 1) % 3]
+            iL3 = FL2E[fsp[0], (fsp[1] + 2) % 3]
+
+            A[iA, iL1] = 1
+            A[iA, iL2] = -1
+            A[iA, iL3] = -1
+
+            b[iA] = - delta
+
+            iA += 1
+            nMoll += 1
+
+        A[iA, i] = -1
+        b[iA] = - FL[fs]
+
+        iA += 1
+
+    # slice A and b to remove extra rows based on iA
+    A = A[:iA]
+    b = b[:iA]
+
+    # solve
+    LE = sp.optimize.linprog(C, A, b).x
+
+    np.savetxt("A.csv", A, delimiter=",")
+
+    # update FL
+    FS = (E2FL[:,0], E2FL[:,1])
+    FL[FS] = LE[FL2E[FS]]
+
+    FSP = G[FS][((G[FS][:,0] != -1) & (G[FS][:,1] != -1)), :]
+    FSP = (FSP[:, 0], FSP[:, 1])
+    FL[FSP] = LE[FL2E[FSP]]
+
+    nMoll = nMoll // 3
+
+    assert CheckInequalityGlobal(FL, delta)
+    return FL, nMoll
 
 
 
