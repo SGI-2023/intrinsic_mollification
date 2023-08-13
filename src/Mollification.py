@@ -85,7 +85,8 @@ class MOLLIFICATION_POOLING(Enum):
 def CheckInequalityLocal(L, delta = 1e-4, threshold = 1e-6):
     return max(delta + L[0] - L[1] - L[2], delta - L[0] + L[1] - L[2], delta - L[0] - L[1] + L[2]) < threshold * delta
 
-def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1e-6):
+def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1e-2):
+    print (np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ), threshold * delta)
     return np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ) < threshold * delta
 
 '''
@@ -359,7 +360,18 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
     for i in range(len(FL)):
         # Optimization: we can't skip faces that are already good because their side lengths may change from the mollification neighboring faces
         # but we can skip faces that are already good and also have already good neighbors
-        # TODO: implement this optimization
+        # TODO: Prove or disprove that this optimization is correct, i.e. that there won't be mismatched edges
+        # if CheckInequalityLocal(FL[i], delta):
+        #     for j in range(3):
+        #         fs = (i,j)
+        #         fsp = tuple(G[fs])
+        #         skipFlag = True
+
+        #         if not ((fsp[0] == -1 or fsp[1] == -1) or CheckInequalityLocal(FL[fsp[0]], delta)):
+        #             skipFlag = False
+
+        #     if skipFlag:
+        #         continue
 
         for j in range(3):
             fs = (i,j)
@@ -387,7 +399,8 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
     # s.t. Ax <= b
     # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
     # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
-    A = np.zeros((np.shape(E2FL)[0] * 3, np.shape(E2FL)[0]), dtype=float)
+    A = sp.sparse.lil_matrix((np.shape(E2FL)[0] * 3, np.shape(E2FL)[0]), dtype=float)
+    # .zeros((np.shape(E2FL)[0] * 3, np.shape(E2FL)[0]), dtype=float)
     b = np.zeros(np.shape(E2FL)[0] * 3, dtype=float)
 
     iA = 0
@@ -412,6 +425,8 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
         iA += 1
         nMoll += 1
 
+        # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3)
+
         if fsp[0] != -1 and fsp[1] != -1:
             iL1 = i
             iL2 = FL2E[fsp[0], (fsp[1] + 1) % 3]
@@ -426,8 +441,12 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
             iA += 1
             nMoll += 1
 
+            # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3)
+
         A[iA, i] = -1
-        b[iA] = - FL[fs]
+        b[iA] = - FL[fs[0], fs[1]]
+
+        # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3, "FL[fs[0], fs[1]]: ", FL[fs[0], fs[1]])
 
         iA += 1
 
@@ -435,10 +454,10 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
     A = A[:iA]
     b = b[:iA]
 
+    #np.savetxt("A.txt", A)
+
     # solve
     LE = sp.optimize.linprog(C, A, b).x
-
-    np.savetxt("A.csv", A, delimiter=",")
 
     # update FL
     FS = (E2FL[:,0], E2FL[:,1])
@@ -452,6 +471,8 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
 
     assert CheckInequalityGlobal(FL, delta)
     return FL, nMoll
+
+
 
 
 

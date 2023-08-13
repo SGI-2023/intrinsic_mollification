@@ -113,10 +113,13 @@ def build_gluing_map(F):
             # get the two endpoints (i,j) of this side, in sorted order
             i = F[f,s]
             j = F[next_side((f,s))]
-            S[f*3+s] = (min(i,j),max(i,j),f,s)
+            S[f*3+s] = (min(i,j),max(i,j),f,(s+2)%3)
 
     # Sort the list row-wise (so i-j pairs are adjacent)
     S = sort_rows(S)
+
+    # save S to a text file for debugging
+    np.savetxt("S.txt", S, fmt="%d")
 
     # Build the |F|x3 gluing map G, by linking together pairs of sides with the same vertex indices.
     G = np.empty([n_faces(F),3,2], dtype=np.int64)
