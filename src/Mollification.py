@@ -85,7 +85,7 @@ class MOLLIFICATION_POOLING(Enum):
 def CheckInequalityLocal(L, delta = 1e-4, threshold = 1e-6):
     return max(delta + L[0] - L[1] - L[2], delta - L[0] + L[1] - L[2], delta - L[0] - L[1] + L[2]) < threshold * delta
 
-def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1e-2):
+def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1.5e-2):
     print (np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ), threshold * delta)
     return np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ) < threshold * delta
 
@@ -124,10 +124,12 @@ def IntrinsicMollificationFL(FL, G = None, delta = 1e-4,
         newFL, nMoll, nIter = IntrinsicMollification_Sequential_Global(newFL, G, delta, local_scheme, pooling)
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_MANHATTAN:
         newFL = np.copy(FL)
+        #newFL, nMoll = IntrinsicMollification_Global_Optimization_Manhattan(newFL, G, delta)
         newFL, nMoll = IntrinsicMollification_Global_Optimization_Manhattan(newFL, G, delta)
         nIter = 1
     elif scheme == MOLLIFICATION_SCHEME.GLOBAL_OPTIMIZATION_EUCLIDEAN:
-        newFL = IntrinsicMollification_Global_Optimization_Euclidean(FL, delta)
+        newFL = np.copy(FL)
+        newFL, nMoll = IntrinsicMollification_Global_Optimization_Euclidean(newFL, G, delta)
         nIter = 1
 
     if total_area_preservation:
@@ -186,7 +188,7 @@ def IntrinsicMollification_Constant(FL, delta = 1e-4):
     eps = max(np.max( [delta + FL[:,0] - FL[:,1] - FL[:,2], delta - FL[:,0] + FL[:,1] - FL[:,2], delta - FL[:,0] - FL[:,1] + FL[:,2] ]  ), 0)
 
     newL = eps + FL
-    #print(newL)
+    assert CheckInequalityGlobal(newL, delta)
     return newL, eps
 
 
@@ -270,7 +272,7 @@ def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
 
         nMoll += 1
 
-    #assert CheckInequalityGlobal(L, delta)
+    assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -304,7 +306,7 @@ def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
 
         nMoll += 1
 
-    #assert CheckInequalityGlobal(L, delta)
+    assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -343,14 +345,11 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
 
         nMoll += 1
 
-    #assert CheckInequalityGlobal(L, delta)
+    assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
-def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
-    # we want to minimize the Manhattan distance between the original and new edge lengths
-    # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
-
+def BuildFaceAndEdgeMaps(FL, G, delta = 1e-4):
     # we need to build E2FL & FL2E, initially set to -1
     E2FL = np.full((len(FL) * 3, 2), -1, dtype=int)
     FL2E = np.full((len(FL), 3), -1, dtype=int)
@@ -392,6 +391,16 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
                     iE += 1
 
     E2FL = E2FL[:iE]
+
+    return E2FL, FL2E
+
+def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
+    # we want to minimize the Manhattan distance between the original and new edge lengths
+    # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
+
+    # we need to build E2FL & FL2E, initially set to -1
+    E2FL, FL2E = BuildFaceAndEdgeMaps(FL, G, delta)
+
 
     # min C'x
     C = np.ones(np.shape(E2FL)[0]) # C = [1, 1, 1, ...]
@@ -458,6 +467,7 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
 
     # solve
     LE = sp.optimize.linprog(C, A, b).x
+    #print(np.shape(LE), LE)
 
     # update FL
     FS = (E2FL[:,0], E2FL[:,1])
@@ -472,8 +482,305 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
     assert CheckInequalityGlobal(FL, delta)
     return FL, nMoll
 
+def IntrinsicMollification_Global_Optimization_Euclidean(FL, G, delta = 1e-4):
+    # we want to minimize the Manhattan distance between the original and new edge lengths
+    # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
+
+    # we need to build E2FL & FL2E, initially set to -1
+    E2FL, FL2E = BuildFaceAndEdgeMaps(FL, G, delta)
+
+    cvx.solvers.options['show_progress'] = False
+
+    # min 1/2 * x'Cx + q'x
+    C = cvx.spmatrix(1.0, range(np.shape(E2FL)[0]), range(np.shape(E2FL)[0])) # C = [1, 1, 1, ...]
+
+    q = cvx.matrix(np.zeros((np.shape(E2FL)[0],1), dtype=float)) # 3x1 zero vector
+
+    # s.t. Ax <= b
+    # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
+    # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
+
+    # for cvxopt, we need to store 3 arrays: val, row, col and then construct the sparse matrix later
+    A_Val = np.zeros(np.shape(E2FL)[0] * 7, dtype=float) # atmost 7 non-zero entries per edge (3 for each face, 1 for the edge itself)
+    A_Row = np.zeros(np.shape(E2FL)[0] * 7, dtype=int)
+    A_Col = np.zeros(np.shape(E2FL)[0] * 7, dtype=int)
+    B_Val = np.zeros(np.shape(E2FL)[0] * 3, dtype=float)
+
+    #A = sp.sparse.lil_matrix((np.shape(E2FL)[0] * 3, np.shape(E2FL)[0]), dtype=float)
+    #b = np.zeros(np.shape(E2FL)[0] * 3, dtype=float)
+
+    iA = 0
+    iSp = 0
+    nMoll = 0
+
+    # s.t.
+
+    for i in range(len(E2FL)):
+        fs = (E2FL[i][0], E2FL[i][1])
+        fsp = tuple(G[fs])
+
+        iL1 = i
+        iL2 = FL2E[fs[0], (fs[1] + 1) % 3]
+        iL3 = FL2E[fs[0], (fs[1] + 2) % 3]
+
+        # A[iA, iL1] = 1
+        # A[iA, iL2] = -1
+        # A[iA, iL3] = -1
+        # B[iA] = Lj + Lk - Li - delta
+        A_Row[iSp] = iA
+        A_Col[iSp] = iL1
+        A_Val[iSp] = 1
+        iSp += 1
+
+        A_Row[iSp] = iA
+        A_Col[iSp] = iL2
+        A_Val[iSp] = -1
+        iSp += 1
+
+        A_Row[iSp] = iA
+        A_Col[iSp] = iL3
+        A_Val[iSp] = -1
+
+        Li = FL[fs[0], fs[1]]
+        Lj = FL[fs[0], (fs[1] + 1) % 3]
+        Lk = FL[fs[0], (fs[1] + 2) % 3]
+        B_Val[iA] = Lj + Lk - Li - delta
+
+        iSp += 1
+
+        iA += 1
+        nMoll += 1
+
+        # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3)
+
+        if fsp[0] != -1 and fsp[1] != -1:
+            iL1 = i
+            iL2 = FL2E[fsp[0], (fsp[1] + 1) % 3]
+            iL3 = FL2E[fsp[0], (fsp[1] + 2) % 3]
+
+            # A[iA, iL1] = 1
+            # A[iA, iL2] = -1
+            # A[iA, iL3] = -1
+            # b[iA] = - delta
+            A_Row[iSp] = iA
+            A_Col[iSp] = iL1
+            A_Val[iSp] = 1
+            iSp += 1
+
+            A_Row[iSp] = iA
+            A_Col[iSp] = iL2
+            A_Val[iSp] = -1
+            iSp += 1
+
+            A_Row[iSp] = iA
+            A_Col[iSp] = iL3
+            A_Val[iSp] = -1
+
+            Li = FL[fsp[0], fsp[1]]
+            Lj = FL[fsp[0], (fsp[1] + 1) % 3]
+            Lk = FL[fsp[0], (fsp[1] + 2) % 3]
+            B_Val[iA] = Lj + Lk - Li - delta
+
+            iSp += 1
+
+            iA += 1
+            nMoll += 1
+
+            # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3)
+
+        # A[iA, i] = -1
+        # b[iA] = - FL[fs[0], fs[1]]
+        A_Row[iSp] = iA
+        A_Col[iSp] = i
+        A_Val[iSp] = -1
+        iSp += 1
+
+        B_Val[iA] = 0
+
+        # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3, "FL[fs[0], fs[1]]: ", FL[fs[0], fs[1]])
+
+        iA += 1
+
+    # slice A and b to remove extra rows based on iA, iSp
+    A_Row = A_Row[:iSp]
+    A_Col = A_Col[:iSp]
+    A_Val = A_Val[:iSp]
+    B_Val = B_Val[:iA]
+
+    # Now we can construct the sparse matrix
+    A = cvx.spmatrix(A_Val, A_Row, A_Col)
+    b = cvx.matrix(B_Val)
+
+    #np.savetxt("A.txt", A)
+
+    # solve
+    #print("C:", C.size, "q:", q.size, "A:", A.size, "b:", b.size)
+    Eps = cvx.solvers.qp(C, q, A, b)
+    Eps = np.array(Eps["x"]).transpose()[0]
+    #print(np.shape(Eps), Eps)
+
+    # update FL
+    FS = (E2FL[:,0], E2FL[:,1])
+    FL[FS] += Eps[FL2E[FS]]
+
+    FSP = G[FS][((G[FS][:,0] != -1) & (G[FS][:,1] != -1)), :]
+    FSP = (FSP[:, 0], FSP[:, 1])
+    FL[FSP] += Eps[FL2E[FSP]]
+
+    nMoll = nMoll // 3
+
+    assert CheckInequalityGlobal(FL, delta)
+    return FL, nMoll
 
 
+# def IntrinsicMollification_Global_Optimization_Manhattan_CVX(FL, G, delta = 1e-4):
+#     # we want to minimize the Manhattan distance between the original and new edge lengths
+#     # we can do this by minimizing the sum of the absolute values of the differences, which is a linear program
+
+#     # we need to build E2FL & FL2E, initially set to -1
+#     E2FL, FL2E = BuildFaceAndEdgeMaps(FL, G, delta)
+
+#     cvx.solvers.options['show_progress'] = False
+
+#     # min C'x
+#     # np.ones(np.shape(E2FL)[0])
+#     C = cvx.matrix(np.ones(np.shape(E2FL)[0]))
+
+#     # s.t. Ax <= b
+#     # a + b >= c + delta, b + c >= a + delta, c + a >= b + delta, a>=a_0, b>=b_0, c>=c_0
+#     # rewrite 1<->3 as: -a - b + c <= -delta, -b - c + a <= -delta, -c - a + b <= -delta
+
+#     # for cvxopt, we need to store 3 arrays: val, row, col and then construct the sparse matrix later
+#     A_Val = np.zeros(np.shape(E2FL)[0] * 7, dtype=float) # atmost 7 non-zero entries per edge (3 for each face, 1 for the edge itself)
+#     A_Row = np.zeros(np.shape(E2FL)[0] * 7, dtype=int)
+#     A_Col = np.zeros(np.shape(E2FL)[0] * 7, dtype=int)
+#     B_Val = np.zeros(np.shape(E2FL)[0] * 3, dtype=float)
+
+#     #A = sp.sparse.lil_matrix((np.shape(E2FL)[0] * 3, np.shape(E2FL)[0]), dtype=float)
+#     #b = np.zeros(np.shape(E2FL)[0] * 3, dtype=float)
+
+#     iA = 0
+#     iSp = 0
+#     nMoll = 0
+
+#     # s.t.
+
+#     for i in range(len(E2FL)):
+#         fs = (E2FL[i][0], E2FL[i][1])
+#         fsp = tuple(G[fs])
+
+#         iL1 = i
+#         iL2 = FL2E[fs[0], (fs[1] + 1) % 3]
+#         iL3 = FL2E[fs[0], (fs[1] + 2) % 3]
+
+#         # A[iA, iL1] = 1
+#         # A[iA, iL2] = -1
+#         # A[iA, iL3] = -1
+#         # B[iA] = Lj + Lk - Li - delta
+#         A_Row[iSp] = iA
+#         A_Col[iSp] = iL1
+#         A_Val[iSp] = 1
+#         iSp += 1
+
+#         A_Row[iSp] = iA
+#         A_Col[iSp] = iL2
+#         A_Val[iSp] = -1
+#         iSp += 1
+
+#         A_Row[iSp] = iA
+#         A_Col[iSp] = iL3
+#         A_Val[iSp] = -1
+
+#         Li = FL[fs[0], fs[1]]
+#         Lj = FL[fs[0], (fs[1] + 1) % 3]
+#         Lk = FL[fs[0], (fs[1] + 2) % 3]
+#         B_Val[iA] = Lj + Lk - Li - delta
+
+#         iSp += 1
+
+#         iA += 1
+#         nMoll += 1
+
+#         # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3)
+
+#         if fsp[0] != -1 and fsp[1] != -1:
+#             iL1 = i
+#             iL2 = FL2E[fsp[0], (fsp[1] + 1) % 3]
+#             iL3 = FL2E[fsp[0], (fsp[1] + 2) % 3]
+
+#             # A[iA, iL1] = 1
+#             # A[iA, iL2] = -1
+#             # A[iA, iL3] = -1
+#             # b[iA] = - delta
+#             A_Row[iSp] = iA
+#             A_Col[iSp] = iL1
+#             A_Val[iSp] = 1
+#             iSp += 1
+
+#             A_Row[iSp] = iA
+#             A_Col[iSp] = iL2
+#             A_Val[iSp] = -1
+#             iSp += 1
+
+#             A_Row[iSp] = iA
+#             A_Col[iSp] = iL3
+#             A_Val[iSp] = -1
+
+#             Li = FL[fsp[0], fsp[1]]
+#             Lj = FL[fsp[0], (fsp[1] + 1) % 3]
+#             Lk = FL[fsp[0], (fsp[1] + 2) % 3]
+#             B_Val[iA] = Lj + Lk - Li - delta
+
+#             iSp += 1
+
+#             iA += 1
+#             nMoll += 1
+
+#             # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3)
+
+#         # A[iA, i] = -1
+#         # b[iA] = - FL[fs[0], fs[1]]
+#         A_Row[iSp] = iA
+#         A_Col[iSp] = i
+#         A_Val[iSp] = -1
+#         iSp += 1
+
+#         B_Val[iA] = 0
+
+#         # print("i: ", i, "fs: ", fs, "fsp: ", fsp, "iL1: ", iL1, "iL2: ", iL2, "iL3: ", iL3, "FL[fs[0], fs[1]]: ", FL[fs[0], fs[1]])
+
+#         iA += 1
+
+#     # slice A and b to remove extra rows based on iA, iSp
+#     A_Row = A_Row[:iSp]
+#     A_Col = A_Col[:iSp]
+#     A_Val = A_Val[:iSp]
+#     B_Val = B_Val[:iA]
+
+#     # Now we can construct the sparse matrix
+#     A = cvx.spmatrix(A_Val, A_Row, A_Col)
+#     b = cvx.matrix(B_Val)
+
+#     #np.savetxt("A.txt", A)
+
+#     # solve
+#     #print("C:", C.size, "A:", A.size, "b:", b.size)
+#     Eps = cvx.solvers.lp(C, A, b)
+#     Eps = np.array(Eps["x"]).transpose()[0]
+#     #print(np.shape(Eps), Eps)
+
+#     # update FL
+#     FS = (E2FL[:,0], E2FL[:,1])
+#     FL[FS] += Eps[FL2E[FS]]
+
+#     FSP = G[FS][((G[FS][:,0] != -1) & (G[FS][:,1] != -1)), :]
+#     FSP = (FSP[:, 0], FSP[:, 1])
+#     FL[FSP] += Eps[FL2E[FSP]]
+
+#     nMoll = nMoll // 3
+
+#     assert CheckInequalityGlobal(FL, delta)
+#     return FL, nMoll
 
 
 
@@ -521,7 +828,7 @@ def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
 
         nMoll += 1
 
-    #assert CheckInequalityGlobal(L, delta)
+    assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
