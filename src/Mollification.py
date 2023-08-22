@@ -33,6 +33,8 @@ Generalized IntrinsicMollification:
         - Local Least-Mollification (Manhattan (L1) -> Lin  Prog)
         - Local Least-Mollification (Euclidean (L2) -> Quad Prog)
 
+    - For these, TODO: try to normalize edge lengthes (to preserve total surface area) after each loop before pooling
+
     - Global Optimization Schemes (3, 4)
         - Global Least-Mollification (Manhattan (L1) -> Lin  Prog) (3)
         - Global Least-Mollification (Euclidean (L2) -> Quad Prog) (4)
