@@ -7,7 +7,7 @@ from scipy.sparse.linalg import eigs
 from massmatrix import massmatrix
 from Mollification import IntrinsicMollificationConstant
 from cotanLaplace import cotanLaplace
-from scipy.sparse import coo_matrix, bmat
+from scipy.sparse import coo_matrix, bmat, csr_matrix
 from massmatrix import massmatrix
 
 def vector_area_matrix(F):
@@ -56,6 +56,50 @@ def lscm_hessian(V, F):
     Q = -L_flat - 2. * A
 
     return Q
+
+def lscm(V, F):
+    # Fix the two points from the boundary.
+    b = np.array([2, 1])
+    bnd = igl.boundary_loop(F)
+    b[0] = bnd[0]
+    b[1] = bnd[int(bnd.size / 2)]
+
+    bc = np.array([[0.0, 0.0], [1.0, 0.0]])
+
+    Q = lscm_hessian(V, F)
+
+    # Min quad parameters.
+    b_flat = np.zeros([b.size * np.shape(bc)[1]], dtype=int)
+    bc_flat = np.zeros([bc.size], dtype=float)
+    B_flat = np.zeros([2*np.shape(V)[0]], dtype=float)
+    Aeq = csr_matrix(np.shape(Q))
+    Beq = np.zeros([np.shape(Q)[0], 1], dtype=float)
+
+    # Sizes.
+    V_rows = np.shape(V)[0]
+    bc_rows = np.shape(bc)[0]
+    bc_cols = np.shape(bc)[1]
+    b_size = np.shape(b)[0]
+    
+    # Initial values for flat b and bc.
+    for c in range(bc_cols):
+        b_flat[c*b_size:(c*b_size + 2)] = c*V_rows + b
+        bc_flat[c*bc_rows:((c+1)*bc_rows)] = bc[:, c]
+
+    # IGL performs precompute and solve for min_quad_with fixed in C++. 
+    # However, only the direct function min_quad_with_fixed is available 
+    # in Python.
+    done, W_flat = igl.min_quad_with_fixed(Q, B_flat, b_flat, bc_flat, Aeq, Beq, True)
+    
+    V_uv = np.zeros([V_rows, 2])
+    V_uv_rows = np.shape(V_uv)[0]
+    V_uv_cols = np.shape(V_uv)[1]
+
+    # Results from [x, x, ..., y, y] to [x, y, ..., x, y].
+    for i in range(V_uv_cols):
+        V_uv[:, i] = W_flat[(i*V_uv_rows):((i+1)*V_uv_rows)]
+
+    return done, V_uv
 
 def scp(V, F):
     newL = IntrinsicMollificationConstant(V, F)[-1] 
