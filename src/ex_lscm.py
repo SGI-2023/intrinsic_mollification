@@ -58,14 +58,19 @@ def lscm_hessian(V, F):
     return Q
 
 def scp(V, F):
-    newL = IntrinsicMollificationConstant(V, F)[-1]
-    Q = lscm_hessian(V, F)
-    u,v = eigs(Q)
-    sortedIndices = np.argsort(u)
-    secondSmallEigVal = u[sortedIndices[1]]
-    secondSmallEigVec = v[:,sortedIndices[1]]
-
-    v_uv = secondSmallEigVec.reshape(-1, 2)
+    newL = IntrinsicMollificationConstant(V, F)[-1] 
+    Q = lscm_hessian(V, F) 
+    u,v = eigs(Q) 
+    sortedIndices = np.argsort(u) 
+    secondSmallEigVal = u[sortedIndices[1]] 
+    secondSmallEigVec = v[:,sortedIndices[1]] 
+ 
+    # v_uv = secondSmallEigVec.reshape(-1, 2) 
+    vec_len = len(secondSmallEigVal) 
+    x_vals = secondSmallEigVal[:int(vec_len//2)].reshape(-1, 1) 
+    y_vals = secondSmallEigVal[int(vec_len//2):].reshape(-1, 1) 
+    v_uv = np.vstack((x_vals, y_vals), axis=1) 
+     
     return secondSmallEigVec, secondSmallEigVal, v_uv
 
 # quasi conformal error for evaluation
