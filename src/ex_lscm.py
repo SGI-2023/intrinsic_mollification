@@ -38,7 +38,6 @@ def repdiag(A, d):
     blocks = []
     for i in range(d):
         block = [None] * d
-        block[i] = coo_matrix(A) 
         blocks.append(block)
 
     B = bmat(blocks)
@@ -209,7 +208,7 @@ def lscm_hessian_L(V, F, newL):
 
     return Q
 
-def lscm(V, F, newL):
+def lscm_L(V, F, newL):
     # Fix the two points from the boundary.
     b = np.array([2, 1])
     bnd = igl.boundary_loop(F)
