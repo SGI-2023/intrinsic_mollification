@@ -119,7 +119,7 @@ def build_gluing_map(F):
     S = sort_rows(S)
 
     # save S to a text file for debugging
-    np.savetxt("S.txt", S, fmt="%d")
+    # np.savetxt("S.txt", S, fmt="%d")
 
     # Build the |F|x3 gluing map G, by linking together pairs of sides with the same vertex indices.
     G = np.empty([n_faces(F),3,2], dtype=np.int64)

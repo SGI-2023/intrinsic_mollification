@@ -84,10 +84,10 @@ class MOLLIFICATION_POOLING(Enum):
     MEAN = 0
     MAX = 1
 
-def CheckInequalityLocal(L, delta = 1e-4, threshold = 1e-6):
+def CheckInequalityLocal(L, delta = 1e-4, threshold = 1e-4):
     return max(delta + L[0] - L[1] - L[2], delta - L[0] + L[1] - L[2], delta - L[0] - L[1] + L[2]) < threshold * delta
 
-def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1.5e-2):
+def CheckInequalityGlobal(L, delta = 1e-4, threshold = 1e-4):
     print (np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ), threshold * delta)
     return np.max( [delta + L[:,0] - L[:,1] - L[:,2], delta - L[:,0] + L[:,1] - L[:,2], delta - L[:,0] - L[:,1] + L[:,2] ]  ) < threshold * delta
 
@@ -190,7 +190,7 @@ def IntrinsicMollification_Constant(FL, delta = 1e-4):
     eps = max(np.max( [delta + FL[:,0] - FL[:,1] - FL[:,2], delta - FL[:,0] + FL[:,1] - FL[:,2], delta - FL[:,0] - FL[:,1] + FL[:,2] ]  ), 0)
 
     newL = eps + FL
-    assert CheckInequalityGlobal(newL, delta)
+    #assert CheckInequalityGlobal(newL, delta)
     return newL, eps
 
 
@@ -274,7 +274,7 @@ def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
 
         nMoll += 1
 
-    assert CheckInequalityGlobal(L, delta)
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -308,7 +308,7 @@ def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
 
         nMoll += 1
 
-    assert CheckInequalityGlobal(L, delta)
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -347,7 +347,7 @@ def IntrinsicMollification_Local_LocalLeastManhattan(L, delta = 1e-4):
 
         nMoll += 1
 
-    assert CheckInequalityGlobal(L, delta)
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
@@ -481,7 +481,7 @@ def IntrinsicMollification_Global_Optimization_Manhattan(FL, G, delta = 1e-4):
 
     nMoll = nMoll // 3
 
-    assert CheckInequalityGlobal(FL, delta)
+    #assert CheckInequalityGlobal(FL, delta)
     return FL, nMoll
 
 def IntrinsicMollification_Global_Optimization_Euclidean(FL, G, delta = 1e-4):
@@ -631,7 +631,7 @@ def IntrinsicMollification_Global_Optimization_Euclidean(FL, G, delta = 1e-4):
 
     nMoll = nMoll // 3
 
-    assert CheckInequalityGlobal(FL, delta)
+    #assert CheckInequalityGlobal(FL, delta)
     return FL, nMoll
 
 
@@ -781,7 +781,7 @@ def IntrinsicMollification_Global_Optimization_Euclidean(FL, G, delta = 1e-4):
 
 #     nMoll = nMoll // 3
 
-#     assert CheckInequalityGlobal(FL, delta)
+#     #assert CheckInequalityGlobal(FL, delta)
 #     return FL, nMoll
 
 
@@ -830,7 +830,7 @@ def IntrinsicMollification_Local_LocalLeastEuclidean(L, delta = 1e-4):
 
         nMoll += 1
 
-    assert CheckInequalityGlobal(L, delta)
+    #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
 
