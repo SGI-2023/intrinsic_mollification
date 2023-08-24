@@ -38,6 +38,7 @@ def repdiag(A, d):
     blocks = []
     for i in range(d):
         block = [None] * d
+        block[i] = coo_matrix(A)
         blocks.append(block)
 
     B = bmat(blocks)
