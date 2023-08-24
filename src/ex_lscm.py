@@ -110,10 +110,10 @@ def scp(V, F):
     secondSmallEigVec = v[:,sortedIndices[1]] 
  
     # v_uv = secondSmallEigVec.reshape(-1, 2) 
-    vec_len = len(secondSmallEigVal) 
-    x_vals = secondSmallEigVal[:int(vec_len//2)].reshape(-1, 1) 
-    y_vals = secondSmallEigVal[int(vec_len//2):].reshape(-1, 1) 
-    v_uv = np.vstack((x_vals, y_vals), axis=1) 
+    vec_len = len(secondSmallEigVec) 
+    x_vecs = secondSmallEigVec[:int(vec_len//2)].reshape(-1, 1) 
+    y_vecs = secondSmallEigVec[int(vec_len//2):].reshape(-1, 1) 
+    v_uv = np.vstack((x_vecs, y_vecs), axis=1) 
      
     return secondSmallEigVec, secondSmallEigVal, v_uv
 

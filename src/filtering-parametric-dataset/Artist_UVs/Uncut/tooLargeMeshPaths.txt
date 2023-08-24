@@ -1,0 +1,53 @@
+
+    Directory: /home/ikaroruan/Documents/Repositories/intrinsic_mollification/src/filtering-parametric-dataset/Obj_Files/Obj_Files/Artist_UVs/Uncut
+
+UnixMode   User             Group                 LastWriteTime           Size Name
+--------   ----             -----                 -------------           ---- ----
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59      189704920 object_121_moon
+                                                                               _0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59       35753164 object_201_ceil
+                                                                               ing_cornice_0.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59       35753164 object_201_ceil
+                                                                               ing_cornice_1.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       32522545 object_278_dres
+                                                                               s_form_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       38548328 object_283_fish
+                                                                               _0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       73579325 object_306_eiff
+                                                                               el_phone_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       62370001 object_306_eiff
+                                                                               el_phone_1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       30184046 object_306_eiff
+                                                                               el_phone_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       28218345 object_306_eiff
+                                                                               el_phone_3.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       33328645 object_312_mino
+                                                                               taur_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       42180557 object_321_vase
+                                                                               _cylinder_twist
+                                                                               _0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       38363061 object_323_prip
+                                                                               yat_ferris_whee
+                                                                               l_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       46731114 object_327_quee
+                                                                               n_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       46565293 object_328_gian
+                                                                               t_isopod_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       57114069 object_332_cas_
+                                                                               a_supernova_rem
+                                                                               nant_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02      108168499 object_334_brid
+                                                                               ge_edge_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02      106143120 object_335_ocea
+                                                                               n_floor_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02      140770626 object_336_hors
+                                                                               e_sculpture_0.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02      130161923 object_337_birt
+                                                                               hday_cake_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02       78995452 object_338_pass
+                                                                               enger_pigeon_0.
+                                                                               obj
+
