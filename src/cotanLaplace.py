@@ -19,6 +19,10 @@ class NAN_HACK(Enum):
     TO_ZERO=1
     TO_ONE=2
 
+class CLOSE_TO_ZERO_HACK(Enum):
+    NONE=0
+    TO_ZERO=1
+
 
 '''
     Parameters:
@@ -26,12 +30,16 @@ class NAN_HACK(Enum):
         L: Lengths of edges in the order of edges [1, 2], [2, 0], [0, 1].
         neg_hack: How to handle negative weights.   Options: "none" (default), "to_abs", "to_one".
         nan_hack: How to handle NaN weights.        Options: "none" (default), "to_zero", "to_one".
+        close_zero_hack: How to handle close to zero weights. Options: "none" (default), "to_zero". 
     Returns:
         Laplacian: Laplacian in format of a lil_matrix from scipy sparse matrix.
 '''
 
 
-def cotanLaplace(F, L, neg_hack=NEG_HACK.NONE, nan_hack=NAN_HACK.NONE):
+def cotanLaplace(F, L, 
+                 neg_hack=NEG_HACK.NONE, 
+                 nan_hack=NAN_HACK.NONE,
+                 close_zero_hack=CLOSE_TO_ZERO_HACK.NONE):
 
     Vsize = np.max(F) + 1
 
@@ -66,6 +74,10 @@ def cotanLaplace(F, L, neg_hack=NEG_HACK.NONE, nan_hack=NAN_HACK.NONE):
                     wjk = 0
                 elif nan_hack == NAN_HACK.TO_ONE:
                     wjk = 1
+
+            # Handle close to zero weights.
+            if(np.abs(wjk) < 1e-12 and close_zero_hack != CLOSE_TO_ZERO_HACK.NONE):
+                wjk = 0
 
             # Update the cotan-Laplace matrix.
             fr = F[face]
