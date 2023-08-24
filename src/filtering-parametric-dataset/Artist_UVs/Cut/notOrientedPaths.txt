@@ -1,0 +1,118 @@
+
+    Directory: /home/ikaroruan/Documents/Repositories/intrinsic_mollification/src/filtering-parametric-dataset/Obj_Files/Obj_Files/Artist_UVs/Cut
+
+UnixMode   User             Group                 LastWriteTime           Size Name
+--------   ----             -----                 -------------           ---- ----
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57         113875 object_189_arab
+                                                                               ian_horse_trott
+                                                                               ing_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          29421 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            797 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_24.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            810 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_25.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            808 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_26.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            805 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_27.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            816 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_28.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            794 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_29.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            793 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_30.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            795 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_31.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            678 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_32.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            677 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_33.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            672 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_34.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            660 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_35.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            665 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_36.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            665 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_37.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            666 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_38.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57            678 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_39.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57           7412 object_231_elec
+                                                                               tric_guitar_amp
+                                                                               lifier_16.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57           7373 object_231_elec
+                                                                               tric_guitar_amp
+                                                                               lifier_17.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57           6210 object_231_elec
+                                                                               tric_guitar_amp
+                                                                               lifier_18.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57           8555 object_231_elec
+                                                                               tric_guitar_amp
+                                                                               lifier_8.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          16312 object_258_spro
+                                                                               uted_potato_29.
+                                                                               obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          83502 object_268_digi
+                                                                               tal_movie_camer
+                                                                               a_33.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          59696 object_268_digi
+                                                                               tal_movie_camer
+                                                                               a_48.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          88564 object_276_cara
+                                                                               biner_16.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          87765 object_276_cara
+                                                                               biner_17.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          68535 object_276_cara
+                                                                               biner_24.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          50438 object_276_cara
+                                                                               biner_34.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          46095 object_276_cara
+                                                                               biner_35.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57          45596 object_276_cara
+                                                                               biner_36.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57           6328 object_280_rove
+                                                                               r_wheel_28.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:57         149828 object_289_astr
+                                                                               onaut_14.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58         530533 object_315_sopr
+                                                                               anino_recorder_
+                                                                               0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58          60725 object_325_osci
+                                                                               lloscope_36.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58         795549 object_330_pass
+                                                                               enger_aircraft_
+                                                                               10.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58         800869 object_330_pass
+                                                                               enger_aircraft_
+                                                                               11.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58         792384 object_330_pass
+                                                                               enger_aircraft_
+                                                                               12.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58         797647 object_330_pass
+                                                                               enger_aircraft_
+                                                                               13.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58           7958 object_333_kitt
+                                                                               en_30.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58           3337 object_334_brid
+                                                                               ge_edge_18.obj
+

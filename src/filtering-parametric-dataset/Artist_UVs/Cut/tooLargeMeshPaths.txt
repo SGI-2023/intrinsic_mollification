@@ -1,0 +1,17 @@
+
+    Directory: /home/ikaroruan/Documents/Repositories/intrinsic_mollification/src/filtering-parametric-dataset/Obj_Files/Obj_Files/Artist_UVs/Cut
+
+UnixMode   User             Group                 LastWriteTime           Size Name
+--------   ----             -----                 -------------           ---- ----
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:56      189537857 object_121_moon
+                                                                               _0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58       42291630 object_321_vase
+                                                                               _cylinder_twist
+                                                                               _0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:58      108371987 object_334_brid
+                                                                               ge_edge_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59       70974395 object_337_birt
+                                                                               hday_cake_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59       57748241 object_337_birt
+                                                                               hday_cake_1.obj
+

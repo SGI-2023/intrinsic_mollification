@@ -1,0 +1,198 @@
+
+    Directory: /home/ikaroruan/Documents/Repositories/intrinsic_mollification/src/filtering-parametric-dataset/Obj_Files/Obj_Files/Artist_UVs/Uncut
+
+UnixMode   User             Group                 LastWriteTime           Size Name
+--------   ----             -----                 -------------           ---- ----
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59        1193707 object_145_huma
+                                                                               n_heart_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59         361719 object_171_mini
+                                                                               _industrial_blo
+                                                                               wer_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59          58836 object_18_lock_
+                                                                               pick_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59         111791 object_189_arab
+                                                                               ian_horse_trott
+                                                                               ing_1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59         946591 object_211_gene
+                                                                               rator_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59          74069 object_211_gene
+                                                                               rator_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59         227123 object_221_nesp
+                                                                               resso_pod_holde
+                                                                               r_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59        2676398 object_227_yoke
+                                                                               _737_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59         111799 object_231_elec
+                                                                               tric_guitar_amp
+                                                                               lifier_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 16:59         279828 object_235_fema
+                                                                               le_clothes_2.ob
+                                                                               j
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         162857 object_238_noma
+                                                                               d_UAV_11.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00          51643 object_246_weap
+                                                                               ons_20.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00          51571 object_246_weap
+                                                                               ons_21.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00        5159352 object_256_cute
+                                                                               _octo_SD_holder
+                                                                               _0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00        3465987 object_258_spro
+                                                                               uted_potato_0.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         528298 object_259_chri
+                                                                               stmas_ornaments
+                                                                               _10.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         535923 object_259_chri
+                                                                               stmas_ornaments
+                                                                               _11.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         528298 object_259_chri
+                                                                               stmas_ornaments
+                                                                               _6.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         535923 object_259_chri
+                                                                               stmas_ornaments
+                                                                               _7.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         528298 object_259_chri
+                                                                               stmas_ornaments
+                                                                               _8.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         535923 object_259_chri
+                                                                               stmas_ornaments
+                                                                               _9.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00        6442061 object_260_orig
+                                                                               ami_steam_boat_
+                                                                               0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         602382 object_266_curv
+                                                                               ed_monitor_1.ob
+                                                                               j
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00          39090 object_266_curv
+                                                                               ed_monitor_9.ob
+                                                                               j
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         667342 object_268_digi
+                                                                               tal_movie_camer
+                                                                               a_1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         369810 object_268_digi
+                                                                               tal_movie_camer
+                                                                               a_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         202375 object_268_digi
+                                                                               tal_movie_camer
+                                                                               a_5.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00        2215707 object_275_kids
+                                                                               _playhouse_0.ob
+                                                                               j
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00        8290744 object_276_cara
+                                                                               biner_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00        1805420 object_276_cara
+                                                                               biner_1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00       10170545 object_277_pile
+                                                                               _of_sticks_and_
+                                                                               logs_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00          25756 object_280_rove
+                                                                               r_wheel_22.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00          10024 object_282_curt
+                                                                               ains_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         149336 object_289_astr
+                                                                               onaut_18.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00          22721 object_290_chur
+                                                                               ch_of_the_nativ
+                                                                               ity_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         324931 object_294_tile
+                                                                               d_stove_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         326070 object_294_tile
+                                                                               d_stove_1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         324997 object_294_tile
+                                                                               d_stove_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         324150 object_294_tile
+                                                                               d_stove_3.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         323860 object_294_tile
+                                                                               d_stove_4.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         149236 object_294_tile
+                                                                               d_stove_40.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         148624 object_294_tile
+                                                                               d_stove_41.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         137983 object_294_tile
+                                                                               d_stove_42.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         137470 object_294_tile
+                                                                               d_stove_43.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         326624 object_294_tile
+                                                                               d_stove_5.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         325156 object_294_tile
+                                                                               d_stove_6.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         661955 object_297_volv
+                                                                               o_truck_10.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         658284 object_297_volv
+                                                                               o_truck_11.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         658877 object_297_volv
+                                                                               o_truck_8.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:00         661537 object_297_volv
+                                                                               o_truck_9.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       15315789 object_315_sopr
+                                                                               anino_recorder_
+                                                                               0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01        3482145 object_315_sopr
+                                                                               anino_recorder_
+                                                                               1.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01        1028172 object_315_sopr
+                                                                               anino_recorder_
+                                                                               3.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       16203032 object_316_terr
+                                                                               a_lounge_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01        2046485 object_325_osci
+                                                                               lloscope_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         175193 object_325_osci
+                                                                               lloscope_43.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         175193 object_325_osci
+                                                                               lloscope_44.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         171546 object_325_osci
+                                                                               lloscope_45.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         171261 object_325_osci
+                                                                               lloscope_46.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         553125 object_325_osci
+                                                                               lloscope_5.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01        9075833 object_326_hove
+                                                                               rcraft_0.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         618722 object_326_hove
+                                                                               rcraft_6.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         380430 object_326_hove
+                                                                               rcraft_8.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01       15303643 object_329_robo
+                                                                               t_canister_vacu
+                                                                               um_cleaner_0.ob
+                                                                               j
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         118527 object_329_robo
+                                                                               t_canister_vacu
+                                                                               um_cleaner_30.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         118022 object_329_robo
+                                                                               t_canister_vacu
+                                                                               um_cleaner_31.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         118195 object_329_robo
+                                                                               t_canister_vacu
+                                                                               um_cleaner_32.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         118861 object_329_robo
+                                                                               t_canister_vacu
+                                                                               um_cleaner_33.o
+                                                                               bj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         791068 object_330_pass
+                                                                               enger_aircraft_
+                                                                               11.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         796299 object_330_pass
+                                                                               enger_aircraft_
+                                                                               12.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         787247 object_330_pass
+                                                                               enger_aircraft_
+                                                                               13.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01         792420 object_330_pass
+                                                                               enger_aircraft_
+                                                                               14.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:01          71400 object_333_kitt
+                                                                               en_2.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02          19136 object_334_brid
+                                                                               ge_edge_18.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02         191969 object_81_potte
+                                                                               d_plant_2_4.obj
+-rw-r--r-- ikaroruan        ikaroruan            4/8/2022 17:02         143012 object_93_class
+                                                                               ic_console_0.ob
+                                                                               j
+
