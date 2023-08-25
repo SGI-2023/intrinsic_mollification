@@ -58,7 +58,7 @@ def lscm_hessian(V, F,
         edgeL = igl.edge_lengths(V, F)
     #newL = IntrinsicMollificationConstant(V, F)[-1]
     #edgeL = igl.edge_lengths(V, F)
-    
+
     # Assemble the area matrix (note that A is #Vx2 by #Vx2)
     A = vector_area_matrix(F)
     # Assemble the cotan laplacian matrix
@@ -96,17 +96,17 @@ def lscm(V, F,
     bc_rows = np.shape(bc)[0]
     bc_cols = np.shape(bc)[1]
     b_size = np.shape(b)[0]
-    
+
     # Initial values for flat b and bc.
     for c in range(bc_cols):
         b_flat[c*b_size:(c*b_size + 2)] = c*V_rows + b
         bc_flat[c*bc_rows:((c+1)*bc_rows)] = bc[:, c]
 
-    # IGL performs precompute and solve for min_quad_with fixed in C++. 
-    # However, only the direct function min_quad_with_fixed is available 
+    # IGL performs precompute and solve for min_quad_with fixed in C++.
+    # However, only the direct function min_quad_with_fixed is available
     # in Python.
     done, W_flat = igl.min_quad_with_fixed(Q, B_flat, b_flat, bc_flat, Aeq, Beq, True)
-    
+
     V_uv = np.zeros([V_rows, 2])
     V_uv_rows = np.shape(V_uv)[0]
     V_uv_cols = np.shape(V_uv)[1]
@@ -118,19 +118,19 @@ def lscm(V, F,
     return done, V_uv
 
 def scp(V, F):
-    newL = IntrinsicMollificationConstant(V, F)[-1] 
-    Q = lscm_hessian(V, F) 
-    u,v = eigs(Q) 
-    sortedIndices = np.argsort(u) 
-    secondSmallEigVal = u[sortedIndices[1]] 
-    secondSmallEigVec = v[:,sortedIndices[1]] 
- 
-    # v_uv = secondSmallEigVec.reshape(-1, 2) 
-    vec_len = len(secondSmallEigVec) 
-    x_vecs = secondSmallEigVec[:int(vec_len//2)].reshape(-1, 1) 
-    y_vecs = secondSmallEigVec[int(vec_len//2):].reshape(-1, 1) 
-    v_uv = np.vstack((x_vecs, y_vecs), axis=1) 
-     
+    newL = IntrinsicMollificationConstant(V, F)[-1]
+    Q = lscm_hessian(V, F)
+    u,v = eigs(Q)
+    sortedIndices = np.argsort(u)
+    secondSmallEigVal = u[sortedIndices[1]]
+    secondSmallEigVec = v[:,sortedIndices[1]]
+
+    # v_uv = secondSmallEigVec.reshape(-1, 2)
+    vec_len = len(secondSmallEigVec)
+    x_vecs = secondSmallEigVec[:int(vec_len//2)].reshape(-1, 1)
+    y_vecs = secondSmallEigVec[int(vec_len//2):].reshape(-1, 1)
+    v_uv = np.hstack((x_vecs, y_vecs))
+
     return secondSmallEigVec, secondSmallEigVal, v_uv
 
 # quasi conformal error for evaluation
