@@ -118,12 +118,10 @@ def lscm(V, F,
     return done, V_uv
 
 def scp(V, F):
-    newL = IntrinsicMollificationConstant(V, F)[-1]
     Q = lscm_hessian(V, F)
-    u,v = eigs(Q)
-    sortedIndices = np.argsort(u)
-    secondSmallEigVal = u[sortedIndices[1]]
-    secondSmallEigVec = v[:,sortedIndices[1]]
+    u,v = eigs(Q, k=2, which='SR')
+    secondSmallEigVal = u[1]
+    secondSmallEigVec = v[:,1]
 
     # v_uv = secondSmallEigVec.reshape(-1, 2)
     vec_len = len(secondSmallEigVec)
@@ -213,7 +211,7 @@ def quasi_conformal_error_per_face(p, q):
 
     return gamma_max / gamma_min, area_p
 
-def lscm_hessian_L(V, F, newL):
+def lscm_hessian_L(F, newL):
     #newL = IntrinsicMollificationConstant(V, F)[-1]
     #edgeL = igl.edge_lengths(V, F)
     # Assemble the area matrix (note that A is #Vx2 by #Vx2)
@@ -234,7 +232,7 @@ def lscm_L(V, F, newL):
 
     bc = np.array([[0.0, 0.0], [1.0, 0.0]])
 
-    Q = lscm_hessian_L(V, F, newL)
+    Q = lscm_hessian_L(F, newL)
 
     # Min quad parameters.
     b_flat = np.zeros([b.size * np.shape(bc)[1]], dtype=int)
@@ -268,6 +266,21 @@ def lscm_L(V, F, newL):
         V_uv[:, i] = W_flat[(i*V_uv_rows):((i+1)*V_uv_rows)]
 
     return done, V_uv
+
+def scp_L(F, FL):
+    Q = lscm_hessian_L(F, FL)
+    u,v = eigs(Q, k=2, which='SR')
+    secondSmallEigVal = u[1]
+    secondSmallEigVec = v[:,1]
+
+    # v_uv = secondSmallEigVec.reshape(-1, 2)
+    vec_len = len(secondSmallEigVec)
+    x_vecs = secondSmallEigVec[:int(vec_len//2)].reshape(-1, 1)
+    y_vecs = secondSmallEigVec[int(vec_len//2):].reshape(-1, 1)
+    v_uv = np.hstack((x_vecs, y_vecs))
+
+    return secondSmallEigVec, secondSmallEigVal, v_uv
+
 
 
 
