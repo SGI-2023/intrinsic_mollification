@@ -6,7 +6,7 @@ from scipy.sparse.linalg import eigs
 
 from massmatrix import massmatrix
 from Mollification import IntrinsicMollificationConstant
-from cotanLaplace import cotanLaplace
+from cotanLaplace import *
 from scipy.sparse import coo_matrix, bmat, csr_matrix
 from massmatrix import massmatrix
 
@@ -45,19 +45,35 @@ def repdiag(A, d):
 
     return B
 
-def lscm_hessian(V, F):
+def lscm_hessian(V, F,
+                 mollified=False,
+                 neg_hack=NEG_HACK.NONE,
+                 nan_hack=NAN_HACK.NONE,
+                 close_zero_hack=CLOSE_TO_ZERO_HACK.NONE):
+
+    edgeL = []
+    if(mollified):
+        edgeL = IntrinsicMollificationConstant(V, F, delta=1e1)[2]
+    else:
+        edgeL = igl.edge_lengths(V, F)
     #newL = IntrinsicMollificationConstant(V, F)[-1]
-    edgeL = igl.edge_lengths(V, F)
+    #edgeL = igl.edge_lengths(V, F)
+    
     # Assemble the area matrix (note that A is #Vx2 by #Vx2)
     A = vector_area_matrix(F)
     # Assemble the cotan laplacian matrix
-    L = cotanLaplace(F, edgeL)
+    L = cotanLaplace(F, edgeL, neg_hack, nan_hack, close_zero_hack)
     L_flat = repdiag(L, 2)
     Q = -L_flat - 2. * A
 
     return Q
 
-def lscm(V, F):
+def lscm(V, F,
+         mollified=False,
+         neg_hack=NEG_HACK.NONE,
+         nan_hack=NAN_HACK.NONE,
+         close_zero_hack=CLOSE_TO_ZERO_HACK.NONE):
+
     # Fix the two points from the boundary.
     b = np.array([2, 1])
     bnd = igl.boundary_loop(F)
@@ -66,7 +82,7 @@ def lscm(V, F):
 
     bc = np.array([[0.0, 0.0], [1.0, 0.0]])
 
-    Q = lscm_hessian(V, F)
+    Q = lscm_hessian(V, F, mollified, neg_hack, nan_hack, close_zero_hack)
 
     # Min quad parameters.
     b_flat = np.zeros([b.size * np.shape(bc)[1]], dtype=int)
