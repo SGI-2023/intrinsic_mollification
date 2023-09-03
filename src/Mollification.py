@@ -75,6 +75,7 @@ class MOLLIFICATION_LOCAL_SCHEME(Enum):
     ONE_BY_ONE_INTERPOLATED = 1
     LOCAL_LEAST_MOLLIFICATION_MANHATTAN = 2
     LOCAL_LEAST_MOLLIFICATION_EUCLIDEAN = 3
+    CONSTANT_EPSILON = 4
 
 class MOLLIFICATION_DELTA_FACTOR(Enum):
     MEAN_EDGE_LENGTH = 0
@@ -204,6 +205,8 @@ def IntrinsicMollification_Local(FL, delta = 1e-4,
         return IntrinsicMollification_Local_LocalLeastManhattan(FL, delta)
     elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.LOCAL_LEAST_MOLLIFICATION_EUCLIDEAN:
         return IntrinsicMollification_Local_LocalLeastEuclidean(FL, delta)
+    elif local_scheme == MOLLIFICATION_LOCAL_SCHEME.CONSTANT_EPSILON:
+        return IntrinsicMollification_Local_Constant(FL, delta)
 
 
 def IntrinsicMollification_Sequential_Global(FL, G, delta = 1e-4,
@@ -248,6 +251,25 @@ def IntrinsicMollification_Sequential_Global(FL, G, delta = 1e-4,
     return newFL, nMoll, i
 
 
+def IntrinsicMollification_Local_Constant(L, delta = 1e-4):
+
+    nMoll = 0
+
+    for i in range(len(L)):
+        if CheckInequalityLocal(L[i], delta):
+            continue
+
+        # apply constant mollification
+        eps = max(np.max( [delta + L[i][0] - L[i][1] - L[i][2], delta - L[i][0] + L[i][1] - L[i][2], delta - L[i][0] - L[i][1] + L[i][2] ]  ), 0)
+
+        L[i] += eps
+
+        nMoll += 1
+
+    #assert CheckInequalityGlobal(L, delta)
+
+    return L , nMoll
+
 def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
 
     nMoll = 0
@@ -277,6 +299,7 @@ def IntrinsicMollification_Local_OneByOneStep(L, delta = 1e-4):
     #assert CheckInequalityGlobal(L, delta)
 
     return L , nMoll
+
 
 def IntrinsicMollification_Local_OneByOneInterpolated(L, delta = 1e-4):
 
