@@ -2,13 +2,12 @@ import igl
 
 import numpy as np
 
-from scipy.sparse.linalg import eigs
+from scipy.sparse.linalg import eigs, spsolve, eigsh
 
-from massmatrix import massmatrix
+from massmatrix import *
 from Mollification import IntrinsicMollificationConstant
 from cotanLaplace import *
 from scipy.sparse import coo_matrix, bmat, csr_matrix
-from massmatrix import massmatrix
 
 def vector_area_matrix(F):
     # Number of vertices
@@ -131,6 +130,43 @@ def scp(V, F):
 
     return secondSmallEigVec, secondSmallEigVal, v_uv
 
+def isometric_distortion(V, F, V_uv):
+    # compute the edge lengths of the original mesh
+    L = igl.edge_lengths(V, F)
+    # compute the edge lengths of the parametrized mesh
+    if V_uv.shape[1] == 2:
+        V_uv = np.hstack([V_uv, np.zeros([V_uv.shape[0], 1])])
+    L_uv = igl.edge_lengths(V_uv, F)
+
+    # normalize the edge lengths
+    L = L / np.linalg.norm(L)
+    L_uv = L_uv / np.linalg.norm(L_uv)
+
+    # compute the isometric distortion
+    isometric_distortion = np.linalg.norm(L - L_uv)
+
+    return isometric_distortion
+
+def area_distortion(V, F, V_uv):
+    # compute the area of the original mesh
+    A = igl.doublearea(V, F)
+    # compute the area of the parametrized mesh
+    A_uv = igl.doublearea(V_uv, F)
+
+    # normalize the areas
+    A = A / np.linalg.norm(A)
+    A_uv = A_uv / np.linalg.norm(A_uv)
+
+    # compute the area distortion
+    area_distortion = np.linalg.norm(A - A_uv)
+
+    return area_distortion
+
+
+# We are using the quasi conformal error as the metric for evaluation
+# of the conformal mapping algorithms like LSCM and SCP
+
+
 # quasi conformal error for evaluation
 # V: vertex positions (#V x 3)
 # F: faces defined by vertex indices (#F x 3)
@@ -171,14 +207,14 @@ def quasi_conformal_error_per_face(p, q):
     v2 = q[2] - q[0]
 
     # get the orthonormal basis of the face in R3
-    e1 = u1 / np.linalg.norm(u1)
+    e1 = u1 / (np.linalg.norm(u1) + 1e-20)
     e2 = u2 - np.dot(u2, e1) * e1
-    e2 = e2 / np.linalg.norm(e2)
+    e2 = e2 / (np.linalg.norm(e2) + 1e-20)
 
     # get the orthonormal basis of the face in uv space
-    f1 = v1 / np.linalg.norm(v1)
+    f1 = v1 / (np.linalg.norm(v1) + 1e-20)
     f2 = v2 - np.dot(v2, f1) * f1
-    f2 = f2 / np.linalg.norm(f2)
+    f2 = f2 / (np.linalg.norm(f2) + 1e-20)
 
     # project the edge vectors of the face in R3 to the orthonormal basis
     # of the face in R3
@@ -202,14 +238,14 @@ def quasi_conformal_error_per_face(p, q):
     a = np.dot(Ss, Ss)
     b = np.dot(Ss, St)
     c = np.dot(St, St)
-    det = np.sqrt(np.power(a - c, 2) + 4.0 * b * b)
-    gamma_max = np.sqrt(0.5 * (a + c + det))
-    gamma_min = np.sqrt(0.5 * (a + c - det))
+    det = np.sqrt(max(np.power(a - c, 2) + 4.0 * b * b, 0))
+    gamma_max = np.sqrt(max(0.5 * (a + c + det), 0))
+    gamma_min = np.sqrt(max(0.5 * (a + c - det), 0))
 
     if gamma_max < gamma_min:
         gamma_max, gamma_min = gamma_min, gamma_max
 
-    return gamma_max / gamma_min, area_p
+    return gamma_max / max(gamma_min, 1e-20), area_p
 
 def lscm_hessian_L(F, newL):
     #newL = IntrinsicMollificationConstant(V, F)[-1]
@@ -269,7 +305,12 @@ def lscm_L(V, F, newL):
 
 def scp_L(F, FL):
     Q = lscm_hessian_L(F, FL)
-    u,v = eigs(Q, k=2, which='SR')
+    avg_edge_length = np.mean(FL)
+    # use shift-invert mode to find the 2 smallest eigenvalues
+    u,v = eigs(Q, k=2, which='LM', tol=1e-2, sigma=0.0001)
+    # replace eigs with manual power iteration
+    # v = power_iteration(Q)
+    #secondSmallEigVal = u[1]
     secondSmallEigVal = u[1]
     secondSmallEigVec = v[:,1]
 
@@ -278,18 +319,61 @@ def scp_L(F, FL):
     x_vecs = secondSmallEigVec[:int(vec_len//2)].reshape(-1, 1)
     y_vecs = secondSmallEigVec[int(vec_len//2):].reshape(-1, 1)
     v_uv = np.hstack((x_vecs, y_vecs))
+    v_uv = np.real(v_uv)
 
     return secondSmallEigVec, secondSmallEigVal, v_uv
 
+def harmonic_L(V, F, FL):
+    bnd = igl.boundary_loop(F)
+
+    ## Map the boundary to a circle, preserving edge proportions
+    bnd_uv = igl.map_vertices_to_circle(V, bnd)
+
+    L = cotanLaplace(F, FL)
+    M = massmatrix(FL, F, MASSMATRIX_TYPE.BARYCENTRIC)
+    # M is scipy.sparse._dia.dia_matrix, L is scipy.sparse._lil.lil_matrix
+    # we need to convert them to scipy.sparse.csr.csr_matrix
+    M = M.tocsr()
+    L = L.tocsr()
+
+    uv = igl.harmonic_weights_from_laplacian_and_mass(L, M, bnd, bnd_uv, 1)
+
+    V_uv = np.hstack([uv, np.zeros((uv.shape[0],1))])
+
+    return V_uv
 
 
+# should return the second smallest eigenvalue and eigenvector
+def power_iteration(A, num_simulations=50):
+    # Ideally choose a random vector
+    # To decrease the chance that our vector
+    # Is orthogonal to the eigenvector
+    b_k2 = np.random.rand(A.shape[0])
+    for _ in range(num_simulations):
+        # solve
+        b_k2 = spsolve(A, b_k2)
+        # substract mean
+        b_k2 = b_k2 - np.mean(b_k2)
 
+        # normalize
+        b_k2 = b_k2 / np.linalg.norm(b_k2)
+    return b_k2
 
+#         if risidual(A, b_k2) < epsillon:
+#             break
 
+# def risidual(A, b):
+#     # in c++:
+#     # Vector<std::complex<double>> bConj = b.conjugate().transpose();
+#     # double lambda = (bConj * A * b).norm() / (bConj * b).norm();
+#     # double res = (A * b - lambda * b).norm() / b.norm();
 
+#     # in python:
+#     # first, b is a real vector having the imaginary part in the second half
+#     b_conj = b
+#     b_conj[int(len(b)/2):] = -b_conj[int(len(b)/2):]
 
-# Example usage:
-if __name__ == "__main__":
-    # Assuming you have V and F defined as numpy arrays
-    [V, F] = igl.read_triangle_mesh("../data/bunny.obj")
-    scp(V, F)
+#     lambda_ = np.linalg.norm(np.dot(np.dot(b_conj, A), b)) / np.linalg.norm(np.dot(b_conj, b))
+#     res = np.linalg.norm(np.dot(A, b) - lambda_ * b) / np.linalg.norm(b)
+
+#     return res
