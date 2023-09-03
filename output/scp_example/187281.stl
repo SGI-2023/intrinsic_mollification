@@ -1,0 +1,198 @@
+solid ../output/scp_example/187281.stl
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex 3.330000e+00 -5.767729e+00 -0.000000e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 3.330000e+00 -5.767729e+00 -0.000000e+00
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+vertex -4.977020e-01 -6.641377e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex 4.882125e+00 -4.529950e+00 -0.000000e+00
+vertex 3.330000e+00 -5.767729e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 1.010738e+00 -4.428335e+00 7.647545e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 4.882125e+00 -4.529950e+00 -0.000000e+00
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 3.330000e+00 -5.767729e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.382250e-01 -4.513303e+00 7.706261e+00
+vertex -4.977020e-01 -6.641377e+00 -0.000000e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex -4.977020e-01 -6.641377e+00 -0.000000e+00
+vertex -2.433171e+00 -6.199619e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex 6.000453e+00 -2.889666e+00 -0.000000e+00
+vertex 4.882125e+00 -4.529950e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.010738e+00 -4.428335e+00 7.647545e+00
+vertex 4.834440e-01 -4.599664e+00 7.167522e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 4.834440e-01 -4.599664e+00 1.970250e+01
+vertex 1.010738e+00 -4.428335e+00 7.647545e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 3.329682e+00 -3.089493e+00 7.647543e+00
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 4.882125e+00 -4.529950e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 4.834440e-01 -4.599664e+00 7.167522e+00
+vertex -3.382250e-01 -4.513303e+00 7.706261e+00
+vertex 1.481989e+00 -6.493020e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.382250e-01 -4.513303e+00 7.706261e+00
+vertex -1.429204e+00 -4.398636e+00 7.227958e+00
+vertex -4.977020e-01 -6.641377e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -1.671447e+00 -4.258777e+00 7.529051e+00
+vertex -2.433171e+00 -6.199619e+00 -0.000000e+00
+vertex -4.977020e-01 -6.641377e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex -2.433171e+00 -6.199619e+00 -0.000000e+00
+vertex -4.152442e+00 -5.206998e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.000453e+00 -2.889666e+00 -0.000000e+00
+vertex 3.741704e+00 -2.718507e+00 7.167521e+00
+vertex 4.882125e+00 -4.529950e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex 6.585613e+00 -9.926210e-01 -0.000000e+00
+vertex 6.000453e+00 -2.889666e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 4.834440e-01 -4.599664e+00 1.970250e+01
+vertex 4.834440e-01 -4.599664e+00 7.167522e+00
+vertex 1.010738e+00 -4.428335e+00 7.647545e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 2.312500e+00 -4.005367e+00 1.970250e+01
+vertex 4.834440e-01 -4.599664e+00 1.970250e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 3.741704e+00 -2.718507e+00 7.167521e+00
+vertex 3.329682e+00 -3.089493e+00 7.647543e+00
+vertex 4.882125e+00 -4.529950e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 2.312500e+00 -4.005367e+00 1.970250e+01
+vertex 2.312500e+00 -4.005367e+00 7.348612e+00
+vertex 3.329682e+00 -3.089493e+00 7.647543e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 4.834440e-01 -4.599664e+00 7.167522e+00
+vertex -1.429204e+00 -4.398636e+00 1.970250e+01
+vertex -3.382250e-01 -4.513303e+00 7.706261e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -1.429204e+00 -4.398636e+00 7.227958e+00
+vertex -1.671447e+00 -4.258777e+00 7.529051e+00
+vertex -4.977020e-01 -6.641377e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -1.429204e+00 -4.398636e+00 1.970250e+01
+vertex -1.429204e+00 -4.398636e+00 7.227958e+00
+vertex -3.382250e-01 -4.513303e+00 7.706261e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -1.671447e+00 -4.258777e+00 7.529051e+00
+vertex -2.852486e+00 -3.576904e+00 7.529051e+00
+vertex -2.433171e+00 -6.199619e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -2.852486e+00 -3.576904e+00 7.529051e+00
+vertex -4.152442e+00 -5.206998e+00 -0.000000e+00
+vertex -2.433171e+00 -6.199619e+00 -0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -6.364115e+00 -1.963069e+00 -0.000000e+00
+vertex -4.152442e+00 -5.206998e+00 -0.000000e+00
+vertex -5.502750e+00 -3.751712e+00 -0.000000e+00
+endloop
+endfacet
+endsolid ../output/scp_example/187281.stl

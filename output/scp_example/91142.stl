@@ -1,0 +1,44 @@
+solid ../output/scp_example/91142.stl
+facet normal 0 0 0
+outer loop
+vertex -3.526036e+01 -3.645306e+01 1.769596e+01
+vertex -3.526036e+01 -3.155305e+01 8.395965e+00
+vertex -3.526036e+01 -3.155305e+01 1.769596e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.526036e+01 -3.155305e+01 8.395965e+00
+vertex -3.946036e+01 -3.155305e+01 2.079597e+01
+vertex -3.526036e+01 -3.155305e+01 1.769596e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.086036e+01 -3.155305e+01 1.769596e+01
+vertex -3.526036e+01 -3.645306e+01 1.769596e+01
+vertex -3.526036e+01 -3.155305e+01 1.769596e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.526036e+01 -3.155305e+01 8.395965e+00
+vertex -3.526036e+01 -3.645306e+01 1.769596e+01
+vertex -3.526036e+01 -3.645306e+01 8.395965e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.526036e+01 -3.155305e+01 1.769596e+01
+vertex -3.946036e+01 -3.155305e+01 2.079597e+01
+vertex -3.086036e+01 -3.155305e+01 1.769596e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex -3.946036e+01 -3.155305e+01 2.079597e+01
+vertex -3.526036e+01 -3.155305e+01 8.395965e+00
+vertex -3.946036e+01 -3.155305e+01 8.395965e+00
+endloop
+endfacet
+endsolid ../output/scp_example/91142.stl

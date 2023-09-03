@@ -1,0 +1,219 @@
+solid ../output/scp_example/1582428.stl
+facet normal 0 0 0
+outer loop
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+vertex 1.575000e+01 -5.114222e-01 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -5.114222e-01 1.050000e+01
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+vertex 1.575000e+01 -5.114222e-01 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 7.500000e+00 -5.250006e+00 1.050000e+01
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+vertex 8.999999e+00 -6.749997e+00 1.050000e+01
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -8.250003e+00 1.050000e+01
+vertex 1.575000e+01 -5.114222e-01 1.050000e+01
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -5.114222e-01 9.000000e+00
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+vertex 1.575000e+01 -5.114222e-01 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+vertex 6.000001e+00 -2.249994e+00 1.050000e+01
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+vertex 7.500000e+00 -3.750000e+00 6.000000e+00
+vertex 7.500000e+00 -5.250006e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 7.500000e+00 -5.250006e+00 1.050000e+01
+vertex 7.500000e+00 -5.250006e+00 6.000000e+00
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 8.999999e+00 -6.749997e+00 1.050000e+01
+vertex 8.999999e+00 -6.749997e+00 4.500000e+00
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+vertex 8.999999e+00 -5.250006e+00 4.500000e+00
+vertex 8.999999e+00 -6.749997e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -8.250003e+00 1.050000e+01
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+vertex 1.050000e+01 -8.250003e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -5.114222e-01 1.050000e+01
+vertex 1.575000e+01 -8.250003e+00 1.050000e+01
+vertex 1.575000e+01 -5.114222e-01 9.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.749997e+00 -5.114222e-01 9.000000e+00
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+vertex 1.575000e+01 -5.114222e-01 9.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.000001e+00 -2.249994e+00 1.050000e+01
+vertex 6.000001e+00 -3.750000e+00 1.050000e+01
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+vertex 4.500003e+00 -7.500029e-01 1.050000e+01
+vertex 6.000001e+00 -2.249994e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 7.500000e+00 -5.250006e+00 1.050000e+01
+vertex 7.500000e+00 -3.750000e+00 6.000000e+00
+vertex 7.500000e+00 -5.250006e+00 6.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+vertex 6.000001e+00 -3.750000e+00 7.500000e+00
+vertex 7.500000e+00 -3.750000e+00 6.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 8.999999e+00 -5.250006e+00 1.050000e+01
+vertex 7.500000e+00 -5.250006e+00 6.000000e+00
+vertex 8.999999e+00 -5.250006e+00 4.500000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+vertex 8.999999e+00 -6.749997e+00 4.500000e+00
+vertex 1.050000e+01 -6.749997e+00 3.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 8.999999e+00 -6.749997e+00 1.050000e+01
+vertex 8.999999e+00 -5.250006e+00 4.500000e+00
+vertex 8.999999e+00 -6.749997e+00 4.500000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.050000e+01 -8.250003e+00 1.050000e+01
+vertex 1.050000e+01 -6.749997e+00 1.050000e+01
+vertex 1.050000e+01 -8.250003e+00 3.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.050000e+01 -8.250003e+00 1.050000e+01
+vertex 1.050000e+01 -8.250003e+00 3.000000e+00
+vertex 1.575000e+01 -8.250003e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -5.114222e-01 9.000000e+00
+vertex 1.575000e+01 -8.250003e+00 1.050000e+01
+vertex 1.575000e+01 -8.250003e+00 0.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 1.575000e+01 -5.114222e-01 9.000000e+00
+vertex 6.749997e+00 8.250003e+00 9.000000e+00
+vertex 6.749997e+00 -5.114222e-01 9.000000e+00
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.749997e+00 -5.114222e-01 9.000000e+00
+vertex 6.749997e+00 8.250003e+00 1.050000e+01
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.000001e+00 -3.750000e+00 1.050000e+01
+vertex 6.000001e+00 -3.750000e+00 7.500000e+00
+vertex 7.500000e+00 -3.750000e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.000001e+00 -2.249994e+00 1.050000e+01
+vertex 6.000001e+00 -2.249994e+00 7.500000e+00
+vertex 6.000001e+00 -3.750000e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 4.500003e+00 -7.500029e-01 1.050000e+01
+vertex 4.500003e+00 -2.249994e+00 1.050000e+01
+vertex 6.000001e+00 -2.249994e+00 1.050000e+01
+endloop
+endfacet
+facet normal 0 0 0
+outer loop
+vertex 6.749997e+00 -5.114222e-01 1.050000e+01
+vertex 6.749997e+00 8.250003e+00 1.050000e+01
+vertex 4.500003e+00 -7.500029e-01 1.050000e+01
+endloop
+endfacet
+endsolid ../output/scp_example/1582428.stl
