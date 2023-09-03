@@ -52,7 +52,10 @@ def cotanLaplace(F, L,
         e2 = edges_length[2]
 
         s = (e0 + e1 + e2)/2
-        area = np.sqrt(s*(s-e1)*(s-e2)*(s-e0))
+        area2 = s*(s-e1)*(s-e2)*(s-e0)
+        if area2 < 0:
+            area2 = 0
+        area = np.sqrt(area2)
 
         lengths = [e0, e1, e2]
         for i in range(3):  # Consider face ijk
